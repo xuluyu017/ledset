@@ -286,7 +286,7 @@ void byle_kws_task(void)
 	int ret,i;
 	int is_play = 0;
 
-      #ifdef KWS_TONE_EN
+      #if  KWS_TONE_EN
 	  if(gByle_kws_ctl.state!= KWS_WORK_RUNNING)
 	return ;  	
       #endif
@@ -345,7 +345,7 @@ void byle_kws_task(void)
                                      #endif
 
 
-                                        #ifndef KWS_TONE_EN
+                                        #if KWS_TONE_EN==0
         				byle_kws_user_stop(KWS_WORK_IDLE);
         				 log_info("wake up cmd\r\n");
         				 gByle_kws_ctl.engine_mode=ENGINE_KWS_MODE_CMD; 
@@ -355,7 +355,7 @@ void byle_kws_task(void)
                               	}
 
 							  
-                              #ifdef KWS_TONE_EN
+                              #if  KWS_TONE_EN
                               byle_kws_app_pause(1);
                               byle_kws_user_stop(KWS_WORK_IDLE); // 释放 kws RAM资源,播放提示音
 			       gByle_kws_ctl.engine_mode=ENGINE_KWS_MODE_CMD; 

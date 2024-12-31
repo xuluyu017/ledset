@@ -163,7 +163,7 @@ u8 i;
 	log_info("id=%x\n",data[0]);
 	log_info("data=%x\n",data[1]);
 
-      #ifdef KWS_TONE_EN
+      #if  KWS_TONE_EN
       	for(i=0;i<BYLE_KWS_IDEX_TONE_NONE;i++)
       	{
       	if(tone_cmd_table[i]==data[1])

@@ -37,7 +37,7 @@
 #define  KWSA_ac_libK2 13     //BZ
 #define  KWSA_ac_libK3 14     //BZ
 #define KWSA_user_libB1   15  //BZ
-#define US320A8_kwsA_libC1_WY_V5
+//#define US320A8_kwsA_libC1_WY_V5
 //#define US320A8_kwsA_libC1_WY_V7
 //#define US320A8_kwsC_libE1_WY_V5
 //#define US320A8_kwsC_libC1_RGB_V3
@@ -57,7 +57,7 @@
 //#define BYLE_KWS_TO_UART_DEMO//
 
 
-//#define    KWSA_SDK_DEMO
+#define    KWSA_SDK_DEMO
 //#define    US320A8_kwsA_MINIQ
 
 
@@ -180,7 +180,7 @@
 #ifdef  KWSA_SDK_DEMO
 #define BYLE_KWS_ASR
 #define  KWS_TYPE  kwsA
-#define  KWS_TONE_EN
+//#define  KWS_TONE_EN  1
 #define  Byle_Kws_Lib_Type   KWSA_SDK_lib 
 #define KWA_customizable_lib
 #define Byle_Authorization_file  Byle_Authorization_keyI
@@ -373,6 +373,9 @@
 #ifdef BYLE_KWS_ASR
 #define MIC_ADC_ENABLE  
 #define  DISABLE_DAC_OUT
+#ifndef KWS_TONE_EN
+#define KWS_TONE_EN 0
+#endif
 #endif
 
 
@@ -415,7 +418,7 @@
 #endif
 
 
-#ifdef  KWS_TONE_EN
+#if   KWS_TONE_EN
 #undef  TCFG_TONE_PLAY_ENABLE 
 #define TCFG_TONE_PLAY_ENABLE               1//ENABLE                 //是否使能提示音播放        CQL_2101			//BZ
 #define TCFG_DAC_ENABLE                     TCFG_TONE_PLAY_ENABLE   //是否需要DAC播放
