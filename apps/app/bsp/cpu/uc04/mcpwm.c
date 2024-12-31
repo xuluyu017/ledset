@@ -165,6 +165,7 @@ void mcpwm_open(pwm_ch_num_type pwm_ch)
     pwm_reg->ch_con1 |= (pwm_ch << 8); //sel mctmr
     mcpwm_ch_open_or_close(pwm_ch, 1);
     mctimer_ch_open_or_close(pwm_ch, 1);
+    JL_MCPWM->MCPWM_CON0 |= BIT(16);
 }
 
 
@@ -175,6 +176,7 @@ void mcpwm_close(pwm_ch_num_type pwm_ch)
 {
     mctimer_ch_open_or_close(pwm_ch, 0);
     mcpwm_ch_open_or_close(pwm_ch, 0);
+    JL_MCPWM->MCPWM_CON0 &= ~BIT(16);
 }
 
 
@@ -215,15 +217,15 @@ void mcpwm_init(struct pwm_platform_data *arg)
     //H:
     if (arg->h_pin < IO_MAX_NUM) {      //任意引脚
         pwm_reg->ch_con0 |= BIT(2);     //H_EN
-        gpio_set_fun_output_port(arg->h_pin, FO_MCPWM0_H + 1 * arg->pwm_ch_num, 1, 1);
+        gpio_set_fun_output_port(arg->h_pin, FO_MCPWM0_H + 4 * arg->pwm_ch_num, 1, 1);
         gpio_set_direction(arg->h_pin, 0); //DIR output
     }
     if (arg->l_pin < IO_MAX_NUM) {
         pwm_reg->ch_con0 |= BIT(3);
-        gpio_set_fun_output_port(arg->l_pin, FO_MCPWM0_L + 1 * arg->pwm_ch_num, 1, 1);
+        gpio_set_fun_output_port(arg->l_pin, FO_MCPWM0_L + 4 * arg->pwm_ch_num, 1, 1);
         gpio_set_direction(arg->l_pin, 0); //DIR output
     }
-    printf("JL_OMAP->PA8_OUT = 0x%x\n", JL_OMAP->PA8_OUT);
+    printf("JL_OMAP->PA2_OUT = 0x%x\n", JL_OMAP->PA2_OUT);
     printf("JL_OMAP->PA3_OUT = 0x%x\n", JL_OMAP->PA3_OUT);
     log_pwm_info(arg->pwm_ch_num);
 

@@ -233,8 +233,10 @@ extern const struct device_operations irflt_dev_ops;
 extern const int IRQ_IRTMR_IP;
 
 void ir_timeout(void);
+void ir_timeout_set(void);
 int irflt_init(void);
 u8 get_irkey_value(void);
+u32 get_irkey_value32(void);
 
 #endif
 

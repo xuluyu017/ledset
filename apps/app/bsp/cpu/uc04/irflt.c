@@ -3,7 +3,7 @@
 #include "gpio.h"
 #include "irflt.h"
 #include "app_config.h"
-
+#include "timer_app.h"
 #define LOG_TAG_CONST       NORM
 #define LOG_TAG             "[irflt]"
 #include "log.h"
@@ -139,6 +139,11 @@ void ir_timeout(void)
     }
 }
 
+void ir_timeout_set(void)
+{
+    sys_s_hi_timer_add(NULL, ir_timeout, 15); //2ms
+}
+
 /*----------------------------------------------------------------------------*/
 /**@brief   ir按键初始化
    @param   void
@@ -154,6 +159,17 @@ int irflt_init(void)
     irflt_config();
     log_irflt_info();
     return 0;
+}
+
+void wft_irflt_pause(void)
+{
+    gpio_ich_disable_input_signal(IR_KEY_IO, INPUT_CH_SIGNAL_IRFLT, INPUT_CH_TYPE_GP_ICH);
+}
+
+void wft_irflt_resume(void)
+{
+    ir_input_io_sel(IRGPIO);
+    irflt_config();
 }
 
 /*----------------------------------------------------------------------------*/
@@ -176,6 +192,22 @@ u8 get_irkey_value(void)
             /* log_info("<%d>",(u8)ir_code.wData); */
             tkey = (u8)ir_code.wData;
         }
+    }
+    else {
+        ir_code.bState = 0;
+    }
+    return tkey;
+}
+
+u32 get_irkey_value32(void)
+{
+    u32 tkey = 0xffffffff;
+    if (ir_code.bState != 32) {
+        return tkey;
+    }
+    if ((((u8 *)&ir_code.wData)[0] ^ ((u8 *)&ir_code.wData)[1]) == 0xff) {
+        tkey = (0x0000ffff&ir_code.wUserCode)<<16;
+        tkey = tkey|(0x0000ffff&ir_code.wData);
     } else {
         ir_code.bState = 0;
     }
