@@ -141,6 +141,7 @@ int  byle_kws_init(char *private_heap, char *share_heap, float *confidence );
 void byle_kwsA_audio_rx_cb(s16 *data, int len);
 bool  get_Authorization_check(void);
 int  byle_kws_init(u8 *dec_buffer, int dec_buffer_size,u8 *heap, int  heap_size);
+int  byle_kws_set_heap_size( int  heap_size);
 
 
 #endif

@@ -170,11 +170,13 @@ c_SRC_FILES := \
 	apps/app/bsp/common/key/key.c \
 	apps/app/bsp/common/key/key_drv_ad.c \
 	apps/app/bsp/common/key/key_drv_io.c \
+	apps/app/bsp/common/key/key_ir.c \
 	apps/app/bsp/common/msg/msg.c \
 	apps/app/bsp/common/my_malloc.c \
 	apps/app/bsp/common/vm/vm_api.c \
 	apps/app/bsp/cpu/uc04/adc_api.c \
 	apps/app/bsp/cpu/uc04/clock.c \
+	apps/app/bsp/cpu/uc04/irflt.c \
 	apps/app/bsp/cpu/uc04/port_wkup.c \
 	apps/app/bsp/cpu/uc04/power_app.c \
 	apps/app/bsp/cpu/uc04/power_config.c \

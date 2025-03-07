@@ -19,7 +19,9 @@
 #endif
 
 #ifdef IR_EMITTER_PORT
-
+#if(IR_LIB_TYPE==lib_irB)
+#include "lib_irB.h"
+#endif
 
 #if(IR_LIB_TYPE==lib_irA)
 #include "lib_irA.h"

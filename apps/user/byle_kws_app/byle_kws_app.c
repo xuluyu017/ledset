@@ -60,12 +60,19 @@ u8 obuf_aas_obuf[aas_obuf_size] ;
 #endif
 
 #if(KWS_TYPE==kwsA)
-
+#define new_kws
+#ifdef new_kws
+#define kws_buffer_size (10*1024)//(5*1024+512)
+#define heap_buffer_size2 (19*1024) //(24*1024+512)
+#define heap_buffer_size1 (5*1024)//固定5k
+u8 kws_buffer[kws_buffer_size] ;	
+u8 heap_buffer[heap_buffer_size1] AT(.usr_data)  ;
+#else
 #define kws_buffer_size (5*1024)//(6*1024+512)
 #define heap_buffer_size 0//(1024+512)
 u8 kws_buffer[kws_buffer_size] AT(.usr_data) ;	
 u8 heap_buffer[heap_buffer_size] AT(.usr_data)  ;
-
+#endif
 #define	 aas_obuf_size  (1024+512+1024)
 #define	MIC_DATA_SIZE	512
 u8 obuf_aas_obuf[aas_obuf_size]  AT(.usr_data)  ALIGNED(4);
@@ -506,8 +513,9 @@ void byle_kws_app(void)
 #endif
 
 #if(KWS_TYPE==kwsA)
-  log_info("  int heap_buffer_size=%d   kws_buffer_size=%d  \r\n",heap_buffer_size,kws_buffer_size);
-err=byle_kws_init(kws_buffer,kws_buffer_size,heap_buffer,heap_buffer_size);
+  log_info("  int heap_buffer_size=%d   kws_buffer_size=%d  \r\n",heap_buffer_size1+heap_buffer_size2,kws_buffer_size);
+byle_kws_set_heap_size(heap_buffer_size2);
+err=byle_kws_init(kws_buffer,kws_buffer_size,heap_buffer,heap_buffer_size1);
 
 #endif
 
