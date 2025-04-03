@@ -10,7 +10,6 @@ sdk_used_list.used
 *.layout
 *.lst
 *.lit
-*.cbp
 *.depend
 .project
 .cproject

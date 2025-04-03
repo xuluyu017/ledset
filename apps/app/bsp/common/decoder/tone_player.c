@@ -10,7 +10,7 @@
 #include "my_malloc.h"
 #include "byle_cfg.h"
 #include "byle_kws_app.h"
-
+#include "gpio.h"
 #define LOG_TAG_CONST       NORM
 #define LOG_TAG     		"[Tone]"
 #include "log.h"

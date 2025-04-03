@@ -37,6 +37,10 @@
 #define  KWSA_ac_libK2 13     //BZ
 #define  KWSA_ac_libK3 14     //BZ
 #define KWSA_user_libB1   15  //BZ
+#define  KwsA_FAN_LIGHT_F6_180K 20
+#define  KwsA_FAN_LIGHT_F6_100K 21
+
+#define US320B4_kwsA_F6_demo
 //#define US320A8_kwsA_libC1_WY_V5
 //#define US320A8_kwsA_libC1_WY_V7
 //#define US320A8_kwsC_libE1_WY_V5
@@ -57,11 +61,11 @@
 //#define BYLE_KWS_TO_UART_DEMO//
 
 
-#define    KWSA_SDK_DEMO
+//#define    KWSA_SDK_DEMO
 //#define    US320A8_kwsA_MINIQ
 
 
-#define KWS_USE_ID   ""//"方案需要修改为自己的ID,才可以跑， 对应方案商唯一ID"//
+#define KWS_USE_ID   "userMjAyMzA0MTExNDE5NDMV2zv0e7KXOvY"//"方案需要修改为自己的ID,才可以跑， 对应方案商唯一ID"//
 
 
 
@@ -80,6 +84,16 @@
 #ifdef  US320_irB_kwsA_K1lib_ch_RGB_V3
 #define  IR_LIB_TYPE lib_irB
 #define  US320_irA_kwsA_K1lib_ch_RGB_V3
+
+#endif
+#ifdef  US320B4_kwsA_F6_demo
+#define BYLE_KWS_ASR
+#define  KWS_TYPE  kwsA
+#define  Byle_Kws_Lib_Type   KwsA_FAN_LIGHT_F6_100K 
+#define Byle_Authorization_file  Byle_Authorization_keyI
+#define  KWS_CMD_MODE  ENGINE_KWS_MODE_WAKEUP  
+#define TCFG_UART_TX_PORT  				IO_PORT_DP//串口发送脚配置
+#define flash_SIZE 0x80000
 
 #endif
 

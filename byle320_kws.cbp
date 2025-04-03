@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="byle320_kws" />
+		<Option compiler="pi32v2_r1_large_lto_compiler" />
+		<Build>
+			<Target title="Release">
+				<Option output="apps/app/post_build/uc04/sdk.elf" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="pi32v2_r1_large_lto_compiler" />
+				<Compiler>
+					<Add option="-flto" />
+					<Add option="-Wundef" />
+					<Add option="-g" />
+					<Add option="-Wuninitialized" />
+					<Add option="-Wno-invalid-noreturn" />
+					<Add option="-fno-common" />
+					<Add option="-integrated-as" />
+					<Add option="-Oz" />
+					<Add option="-fallow-pointer-null" />
+					<Add option="-fprefer-gnu-section" />
+					<Add option="-Wno-shift-negative-value" />
+					<Add option="-mllvm -pi32v2-large-program=true" />
+					<Add option="-Werror=implicit-function-declaration" />
+					<Add option="-Werror=return-type" />
+					<Add option="-Werror=undef" />
+					<Add option="-Wno-format" />
+					<Add option="-D__FPGA=0" />
+					<Add option="-DCONFIG_CPU_UC04=1" />
+					<Add option="-DD_MASKROM_CODE=0" />
+					<Add option="-DD_IS_FLASH_SYSTEM" />
+					<Add option="-DFPGA=0" />
+					<Add option="-DHAS_SRC_EN=0" />
+					<Add option="-DHAS_USB_EN=0" />
+					<Add option="-DHAS_SDMMC_EN=0" />
+					<Add option="-DHAS_EXTFLASH_EN=0" />
+					<Add option="-DHAS_VFS_EN=1" />
+					<Add option="-DHAS_NORFS_EN=0" />
+					<Add option="-DHAS_SYDFS_EN=1" />
+					<Add option="-DNOFLOAT" />
+					<Add directory="apps/include_lib/fs/sydf" />
+					<Add directory="apps/app/src" />
+					<Add directory="apps/include_lib" />
+					<Add directory="apps/app/post_build/uc04" />
+					<Add directory="apps/include_lib/common" />
+					<Add directory="apps/include_lib/audio" />
+					<Add directory="apps/include_lib/audio_standard_eq" />
+					<Add directory="apps/include_lib/audio_cvp" />
+					<Add directory="apps/include_lib/config" />
+					<Add directory="apps/include_lib/cpu/uc04" />
+					<Add directory="apps/include_lib/cpu/uc04/asm/power" />
+					<Add directory="apps/include_lib/cpu/uc04/flash" />
+					<Add directory="apps/include_lib/cpu" />
+					<Add directory="apps/maske_include" />
+					<Add directory="apps/app/bsp/lib" />
+					<Add directory="apps/app/bsp/start" />
+					<Add directory="apps/app/bsp/cpu/uc04" />
+					<Add directory="apps/app/bsp/common" />
+					<Add directory="apps/app/bsp/common/usb/usr" />
+					<Add directory="apps/app/src/voice_light" />
+					<Add directory="apps/include_lib/msg" />
+					<Add directory="apps/include_lib/fs" />
+					<Add directory="apps/include_lib/dev_mg" />
+					<Add directory="apps/include_lib/decoder" />
+					<Add directory="apps/include_lib/sound_mge" />
+					<Add directory="apps/include_lib/device" />
+					<Add directory="apps/include_lib/device/sdmmc" />
+					<Add directory="apps/include_lib/device/norflash" />
+					<Add directory="apps/app/bsp" />
+					<Add directory="apps/app/bsp/common/key" />
+					<Add directory="apps/include_lib/sound_effect_list" />
+					<Add directory="apps/include_lib/liba/ARCH/pi32v2_lto_r1/header" />
+					<Add directory="apps/app/bsp/common/audio" />
+					<Add directory="apps/user" />
+					<Add directory="apps/user/music_led_app" />
+					<Add directory="apps/user/pwm_app" />
+					<Add directory="apps/user/timer_app" />
+					<Add directory="apps/user/byle_kws_app" />
+					<Add directory="apps/user/byle_es" />
+					<Add directory="apps/user/switch_app" />
+					<Add directory="apps/user/audio_app" />
+					<Add directory="apps/user/byle_cmd_lib" />
+					<Add directory="apps/user/uart_app" />
+					<Add directory="apps/user/ir_emitter" />
+				</Compiler>
+				<Linker>
+					<Add option="-flto" />
+					<Add option="--plugin-opt=-pi32v2-always-use-itblock=false" />
+					<Add option="--plugin-opt=-enable-ipra=true" />
+					<Add option="--plugin-opt=-pi32v2-merge-max-offset=4096" />
+					<Add option="--plugin-opt=mcpu=r1" />
+					<Add option="--plugin-opt=-global-merge-on-const" />
+					<Add option="--plugin-opt=-inline-threshold=5" />
+					<Add option="--plugin-opt=-inline-max-allocated-size=32" />
+					<Add option="--plugin-opt=-inline-normal-into-special-section=true" />
+					<Add option="--plugin-opt=-dont-used-symbol-list=malloc,free,sprintf,printf,puts,putchar" />
+					<Add option="--plugin-opt=save-temps" />
+					<Add option="--plugin-opt=-pi32v2-enable-rep-memop" />
+					<Add option="--sort-common" />
+					<Add option="--gc-sections" />
+					<Add option="--plugin-opt=-pi32v2-large-program=true" />
+					<Add option="--start-group" />
+					<Add option="apps/include_lib/liba/uc04/audio_lib.a" />
+					<Add option="apps/include_lib/liba/uc04/sound_mge_lib.a" />
+					<Add option="apps/include_lib/liba/uc04/cpu_lib.a" />
+					<Add option="apps/include_lib/liba/uc04/malloc_lib.a" />
+					<Add option="apps/include_lib/liba/uc04/printf_lib.a" />
+					<Add option="apps/include_lib/liba/uc04/fs_lib.a" />
+					<Add option="apps/include_lib/liba/uc04/wtg_dec_lib.a" />
+					<Add option="apps/include_lib/liba/uc04/libjlsp.a" />
+					<Add option="apps/user/byle_cmd_lib/byle_sdk_lib.a" />
+					<Add option="apps/user/byle_cmd_lib/byletask.a" />
+					<Add option="apps/user/byle_kws_app/byle_kws_api.a" />
+					<Add option="apps/user/byle_kws_app/byle_kws.a" />
+					<Add option="apps/user/audio_app/bylecodeclib.a" />
+					<Add option="apps/user/timer_app/byletimer.a" />
+					<Add option="apps/user/ir_emitter/byle_ir_lib.a" />
+					<Add option="apps/user/ir_emitter/lib_irA.a" />
+					<Add option="--end-group" />
+					<Add option="-Tapps/app/post_build/uc04/app.ld" />
+					<Add option="-M=apps/app/post_build/uc04/app.map" />
+					<Add library="C:/JL/pi32/pi32v2-lib/r1-large/libm.a" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="apps\user\Byle_build_pre.bat" />
+					<Add before="$compiler $options $includes -D__LD__ -E -P apps\app\post_build\uc04\app_ld.c -o apps\app\post_build\uc04\app.ld" />
+					<Add before="$compiler $options $includes -D__LD__ -E -P apps\app\post_build\uc04\download_bat.c -o apps\app\post_build\uc04\download.bat" />
+					<Add before="tools\utils\fixbat.exe apps\app\post_build\uc04\download.bat" />
+					<Add before="$compiler $options $includes -D__LD__ -E -P apps\app\post_build\uc04\download_sh.c -o apps\app\post_build\uc04\download.sh" />
+					<Add before="$compiler $options $includes -D__LD__ -E -P apps\app\post_build\uc04\isd_config_ini.c -o apps\app\post_build\uc04\isd_config.ini" />
+					<Add after="apps\app\post_build\uc04\download.bat sdk" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Unit filename="apps/app/bsp/common/audio/aec_uart_debug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/audio/audac_basic.h" />
+		<Unit filename="apps/app/bsp/common/audio/audio_adc_api.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/audio/audio_dac_api.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/audio/fill_audac.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/cbuf/circular_buf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/decoder/dec/g729_dec.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/decoder/tone_player.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/dev_mg/device_api.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/fs/sydf/sydf_resource.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/fs/vfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/fs/vfs_fat.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/fs/vfs_resource.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/ir/ir_decoder.h" />
+		<Unit filename="apps/app/bsp/common/key/key.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/key/key.h" />
+		<Unit filename="apps/app/bsp/common/key/key_drv_ad.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/key/key_drv_ad.h" />
+		<Unit filename="apps/app/bsp/common/key/key_drv_io.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/key/key_drv_io.h" />
+		<Unit filename="apps/app/bsp/common/key/key_ir.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/msg/msg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/my_malloc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/common/vm/vm_api.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/adc_api.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/adc_api.h" />
+		<Unit filename="apps/app/bsp/cpu/uc04/clock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/irflt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/mcpwm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/port_wkup.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/power_app.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/power_config.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/tick_timer_sys.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/timer_pwm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/uart.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/cpu/uc04/uart_dev.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/device/device_list.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/start/flash_init.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/start/flash_init.h" />
+		<Unit filename="apps/app/bsp/start/init.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/bsp/start/init.h" />
+		<Unit filename="apps/app/bsp/start/uc04/main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/src/app_config.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/src/init_app.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/src/key_table.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/app/src/voice_light/app_cfg_def.h" />
+		<Unit filename="apps/app/src/voice_light/app_config.h" />
+		<Unit filename="apps/app/src/voice_light/init_app.h" />
+		<Unit filename="apps/app/src/voice_light/key_table.h" />
+		<Unit filename="apps/include_lib/asm_type.h" />
+		<Unit filename="apps/include_lib/audio/aec_uart_debug.h" />
+		<Unit filename="apps/include_lib/audio/audio.h" />
+		<Unit filename="apps/include_lib/audio/audio_adc_api.h" />
+		<Unit filename="apps/include_lib/audio/audio_dac_api.h" />
+		<Unit filename="apps/include_lib/common/boot.h" />
+		<Unit filename="apps/include_lib/common/circular_buf.h" />
+		<Unit filename="apps/include_lib/common/common.h" />
+		<Unit filename="apps/include_lib/common/config.h" />
+		<Unit filename="apps/include_lib/common/errno-base.h" />
+		<Unit filename="apps/include_lib/common/includes.h" />
+		<Unit filename="apps/include_lib/common/jiffies.h" />
+		<Unit filename="apps/include_lib/common/jlsp_ad_smart_desk_lamp.h" />
+		<Unit filename="apps/include_lib/common/log.h" />
+		<Unit filename="apps/include_lib/common/my_malloc.h" />
+		<Unit filename="apps/include_lib/common/printf.h" />
+		<Unit filename="apps/include_lib/common/syscfg_efuse.h" />
+		<Unit filename="apps/include_lib/common/vm.h" />
+		<Unit filename="apps/include_lib/cpu/tick_timer_driver.h" />
+		<Unit filename="apps/include_lib/cpu/timer_drv.h" />
+		<Unit filename="apps/include_lib/cpu/uart.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/debug.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/p33_access.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/p33_api.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/p33_interface.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/p33_sfr.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/pmu_flag.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/power_api.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/power_app.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/power_port.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/power_reset.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/power_wakeup.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power/rtc.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/asm/power_interface.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/audio_adc.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/audio_dac.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/boot_efuse.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/clock.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/cpu.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/crc16.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/csfr.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/efuse.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/gpio.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/hwi.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/icache.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/io_imap.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/io_omap.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/irflt.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/irq.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/port_wkup.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/spi.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/timer.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/typedef.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/uart_dev.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/uc04.h" />
+		<Unit filename="apps/include_lib/cpu/uc04/uc04_p33.h" />
+		<Unit filename="apps/include_lib/cpu/wdt.h" />
+		<Unit filename="apps/include_lib/decoder/decode_mge.h" />
+		<Unit filename="apps/include_lib/decoder/if_decoder_ctrl.h" />
+		<Unit filename="apps/include_lib/dev_mg/atomic.h" />
+		<Unit filename="apps/include_lib/dev_mg/device.h" />
+		<Unit filename="apps/include_lib/dev_mg/ioctl_cmds.h" />
+		<Unit filename="apps/include_lib/device/ioctl.h" />
+		<Unit filename="apps/include_lib/device/norflash/norflash.h" />
+		<Unit filename="apps/include_lib/device/sdmmc/sd.h" />
+		<Unit filename="apps/include_lib/fs/fat/fat_resource.h" />
+		<Unit filename="apps/include_lib/fs/fat/ff_opr.h" />
+		<Unit filename="apps/include_lib/fs/fat/tff.h" />
+		<Unit filename="apps/include_lib/fs/sydf/sydf_resource.h" />
+		<Unit filename="apps/include_lib/fs/sydf/sydfile.h" />
+		<Unit filename="apps/include_lib/fs/vfs.h" />
+		<Unit filename="apps/include_lib/fs/vfs_fat.h" />
+		<Unit filename="apps/include_lib/msg/msg.h" />
+		<Unit filename="apps/include_lib/sound_mge/sound_mge.h" />
+		<Unit filename="apps/user/byle_cmd_lib/byle_cmd_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/byle_kws_app/byle_kws_app.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/byle_kws_app/byle_kws_switch_io.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/byle_user.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/ir_emitter/ir_emitter.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/music_led_app/Music_led_code_less.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/music_led_app/ac_zero_det_led.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/pwm_app/user_pwm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/timer_app/timer_app.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/uart_app/byle_uart_api.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="apps/user/user_key_table.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>

@@ -29,7 +29,7 @@ copy /b %ELF_NAME%.bin+data.bin+cache_ram.bin app.bin
 copy /b %ELF_NAME%.bin+data.bin app.bin
 #endif
 
-isd_download.exe -tonorflash -dev uc04 -boot 0x101400 -div8 -wait 300 -uboot uboot.boot -app app.bin -flash-params flash_params.bin -output-fw output_flash.fw -output-ufw update.ufw  -key 622_AD12N.lkey
+isd_download.exe -tonorflash -dev uc04 -boot 0x101400 -div8 -wait 300 -uboot uboot.boot -app app.bin -flash-params flash_params.bin -output-fw output_flash.fw -output-ufw update.ufw  -key 622_AD12N.lkey -reboot 2500 
 
 ::-format all
 @REM 常用命令说明

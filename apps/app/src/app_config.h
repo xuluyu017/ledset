@@ -23,7 +23,7 @@
 #define TCFG_UART_BAUDRATE  				1000000     //串口波打印特率配置
 
 /*---------LOW POWER Configuration----------*/
-#define KEY_WAKEUP_ENABLE					ENABLE//按键唤醒使能
+#define KEY_WAKEUP_ENABLE				0//	ENABLE//按键唤醒使能
 #define KEY_WAKEUP_IO				    	IO_PORTA_10//按键唤醒IO选择
 #define KEY_WAKEUP_EDGE				        FALLING_EDGE//唤醒方式选择
 #define KEY_PULLUP_DOWN_ENABLE				ENABLE//内部上下拉是否使能

@@ -33,6 +33,18 @@
 #define LOG_TAG_CONST       NORM
 #define LOG_TAG             "[user]"
 #include "log.h"
+void *my_free(void *pv);
+void *free(void *pv)
+{
+	return my_free(pv);
+
+}
+
+void put_buf(const u8 *buf, int len)
+{
+	printf_buf(buf,len);
+
+}
 
 int bylelibprintf(const char *format, ...)
 {
