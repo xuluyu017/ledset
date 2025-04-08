@@ -1,0 +1,33 @@
+/*****************************************************************
+>file name : usb_audio.h
+>author : lichao
+>create time : Wed 22 May 2019 10:39:35 AM CST
+*****************************************************************/
+#ifndef _UAC_STREAM_H_
+#define _UAC_STREAM_H_
+#include "typedef.h"
+#include "sound_mge.h"
+
+enum uac_event {
+    USB_AUDIO_PLAY_OPEN = 0x0,
+    USB_AUDIO_PLAY_CLOSE,
+    USB_AUDIO_MIC_OPEN,
+    USB_AUDIO_MIC_CLOSE,
+    // USB_AUDIO_MUTE,
+    USB_AUDIO_SET_PLAY_VOL,
+    USB_AUDIO_SET_MIC_VOL,
+};
+
+
+void uac_mic_vol(u8 vol_l, u8 vol_r);
+void uac_speaker_stream_buf_clear(void);
+u32 uac_speaker_stream_length();
+u32 uac_speaker_stream_size();
+void set_uac_mic_tx_handler(void *priv, int (*tx_handler)(int, void *, int));
+
+int uac_speaker_read(void *priv, void *data, u32 len);
+extern u8 g_spk_vol;
+extern u8 g_eq_debug_enable;
+extern sound_out_obj uac_spk_sound;
+
+#endif

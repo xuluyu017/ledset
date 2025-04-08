@@ -18,8 +18,8 @@
 #define TCFG_HSB_DIV                        HSB_DIV1
 
 /*---------UART Configuration---------------*/
-#define TCFG_DEBUG_ENABLE                   ENABLE_THIS_MOUDLE//调试总开关
-#define TCFG_UART_TX_PORT  					IO_PORTA_14	//串口打印发送脚配置
+#define TCFG_DEBUG_ENABLE                   0//ENABLE_THIS_MOUDLE//调试总开关       //BZ  US320A8_BYLE_KWSA_switch_libS1_WAKEUP  0  ???
+#define TCFG_UART_TX_PORT  					IO_PORT_DM//IO_PORTA_14//IO_PORT_DP//IO_PORT_DM//IO_PORT_DP//IO_PORTA_14	//串口打印发送脚配置	//NO_CONFIG_PORT		BZ
 #define TCFG_UART_BAUDRATE  				1000000     //串口波打印特率配置
 
 /*---------LOW POWER Configuration----------*/
@@ -52,6 +52,7 @@
 #define IR_KEY_IO			                IO_PORTA_06
 #define IR_KEY_IRQ_IDX                      IRQ_TIME2_IDX
 #define IR_KEY_TIMER                        JL_TIMER2
+
 
 #define  KEY_MATRIX_EN  DISABLE
 

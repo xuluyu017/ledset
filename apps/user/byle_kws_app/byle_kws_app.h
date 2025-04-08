@@ -7,10 +7,14 @@
 #include "byle_kws_switch_io.h"
 #endif
 #if (Byle_Kws_Lib_Type==KwsA_FAN_LIGHT_F6_180K||Byle_Kws_Lib_Type==KwsA_FAN_LIGHT_F6_100K)
-#include "FAN_LIGHT_F6_180K.h"
+#include "byle_kwsA_FAN_LIGHT_F6_lib.h"
 #include "byle_kwsA_nor.h"
 #endif
 
+#if (Byle_Kws_Lib_Type==kwsA_wy_light_libC2)
+#include "byle_kwsA_wy_light_libC2.h"
+#include "byle_kwsA_nor.h"
+#endif
 
 #if (Byle_Kws_Lib_Type==KWSC_light_libD1)
 #include "byle_kwsC_light_libD1.h"

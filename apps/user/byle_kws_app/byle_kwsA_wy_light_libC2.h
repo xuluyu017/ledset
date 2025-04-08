@@ -36,53 +36,48 @@ typedef struct {
 
 
 
-enum {
-  eCMD_wakeup_uni,
-  eCMD_default_open,
-  eCMD_default_close,
-  eCMD_changecolor,
-  eCMD_open0,
-  eCMD_close0,
-  eCMD_cmd_no1,
-  eCMD_dimthelight,
-  eCMD_brightthelight,
-  eCMD_changecolor1,
-  eCMD_open2,
-  eCMD_close2,
-  eCMD_close3,
-  eCMD_setlight,
-  eCMD_sleep10min,
-  eCMD_sleep30min,
-  eCMD_sleep1hour,
-  eCMD_cancelsleepoff,
-  eCMD_MaximumBright,
-  eCMD_MinimumBrightn,
-  eCMD_MinBright,
-  eCMD_ColorfulMode,
-  eCMD_Breathingmode,
-  eCMD_yellow,
-  eCMD_green,
-  eCMD_blue,
-  eCMD_red,
-  eCMD_purple,
-  eCMD_cyan,
-  eCMD_white,
-  eCMD_musicmode,
-  eCMD_musicmode1,
-  eCMD_opennight,
-  eCMD_closenight,
 
+#define NLU_CONTENT_SIZE 28
+#define NLU_CONTENT_MAP_SIZE 32
+
+enum {
+	eCMD_wakeup_uni,
+	eCMD_default_open,
+	eCMD_open0,
+	eCMD_open2,
+	eCMD_default_close,
+	eCMD_close0,
+	eCMD_close2,
+	eCMD_coolmode,
+	eCMD_warmmode,
+	eCMD_sunmode,
+	eCMD_all_on,
+	eCMD_nightlight,
+	eCMD_brightthelight,
+	eCMD_brightthelight1,
+	eCMD_dimthelight,
+	eCMD_dimthelight1,
+	eCMD_MaximumBright,
+	eCMD_MinBright,
+	eCMD_MinimumBrightn,
+	eCMD_changecolor,
+	eCMD_opennight,
+	eCMD_closenight,
+    eCMD_sleep10min,
+	eCMD_sleep30min,
+	eCMD_cancelsleepoff,
+	eCMD_open3,
+	eCMD_close3,
+	eCMD_changecolor1,
+
+	eCMD_cmd_no1,
+	eCMD_setlight,
     eCMD_setcolor,
   eCMD_sleep30s,
-    eCMD_coolmode,
-  eCMD_warmmode,
-  eCMD_nightlight,
-  eCMD_dimthelight1,
-  eCMD_brightthelight1,
-  eCMD_sunmode,
 };
-#define NLU_CONTENT_SIZE 34
-#define NLU_CONTENT_MAP_SIZE 37
+#define NLU_CONTENT_SIZE 28
+#define NLU_CONTENT_MAP_SIZE 32
+
 
 
 extern const char* g_nlu_content_str[NLU_CONTENT_SIZE][2];
@@ -107,41 +102,42 @@ extern const uni_nlu_content_mapping_t g_nlu_content_mapping[NLU_CONTENT_MAP_SIZ
 
 /*
 
-唤醒词（灵敏度：中）：小爱小爱、你好小爱
-命令词（灵敏度：中）：
-default_open=开灯
-default_close=关灯
-changecolor=变颜色
-open0=打开电灯
-close0=关闭电灯
-cmd_no1=开|关|色|开开|关关|灯灯|出去|睡觉|回来
-dimthelight=亮一点
-brightthelight=暗一点
-changecolor1=换颜色|改颜色
-open2=回来了
-close2=睡觉了
-close3=出去了
-setlight=设置定时
-sleep10min=定时十分钟
-sleep30min=定时半小时
-sleep1hour=定时一小时
-cancelsleepoff=取消定时
-MaximumBright=最大亮度
-MinimumBrightn=最小亮度
-MinBright=中等亮度
-ColorfulMode=七彩变色
-Breathingmode=呼吸变色
-yellow=黄色
-green=绿色
-blue=蓝色
-red=红色
-purple=紫色
-cyan=青色
-white=白色
-musicmode=音乐模式
-musicmode1=音乐律动
-opennight=打开小夜灯
-closenight=关闭小夜灯
+小艾小艾
+小智小智
+小美小美
+小杜小杜
+小亿小亿
+
+命令词：（灵敏度：中）
+cmd01=开灯
+cmd02=打开灯
+cmd03=打开灯光
+cmd04=关灯
+cmd05=关闭灯
+cmd06=关闭灯光
+cmd07=白光
+cmd08=黄光
+cmd09=中性光
+cmd10=全亮
+cmd11=小夜灯
+cmd12=亮一点
+cmd13=调亮一点
+cmd14=暗一点
+cmd15=调暗一点
+cmd16=最大亮度
+cmd17=中等亮度
+cmd18=最小亮度
+cmd19=变颜色
+cmd20=打开辅助光
+cmd21=关闭辅助光
+cmd22=定时十分钟
+cmd23=定时半小时
+cmd24=取消定时
+cmd25=打开电灯
+cmd26=关闭电灯
+cmd27=切换颜色
+
+
 
 */
 

@@ -60,8 +60,11 @@ u8 obuf_aas_obuf[aas_obuf_size] ;
 #endif
 
 #if(KWS_TYPE==kwsA)
-#define new_kws
-#ifdef new_kws
+#ifndef  new_kws_en
+#define  new_kws_en 1
+#endif
+
+#if new_kws_en
 #define kws_buffer_size (10*1024)//(5*1024+512)
 #define heap_buffer_size2 (19*1024) //(24*1024+512)
 #define heap_buffer_size1 (5*1024)//固定5k
@@ -69,9 +72,10 @@ u8 kws_buffer[kws_buffer_size] ;
 u8 heap_buffer[heap_buffer_size1] AT(.usr_data)  ;
 #else
 #define kws_buffer_size (5*1024)//(6*1024+512)
-#define heap_buffer_size 0//(1024+512)
+#define heap_buffer_size2 0//(24*1024+512)
+#define heap_buffer_size1 0//固定5k
 u8 kws_buffer[kws_buffer_size] AT(.usr_data) ;	
-u8 heap_buffer[heap_buffer_size] AT(.usr_data)  ;
+u8 heap_buffer[heap_buffer_size1] AT(.usr_data)  ;
 #endif
 #define	 aas_obuf_size  (1024+512+1024)
 #define	MIC_DATA_SIZE	512
@@ -192,7 +196,7 @@ byle_switch_handle_action(index);
 if(Byle_kws_msg_table[index]!=KEY_NULL)
  	{
 
-	log_info("appmsg=%d\n",index);
+	printf("appmsg=%d\n",index);
           app_task_put_key_msg(Byle_kws_msg_table[index]);
           msg=Byle_kws_msg_table[index];
  	}
@@ -252,7 +256,7 @@ for (i = 0; i < hashTableSize; i++) {
         index =RE_DEFINE_MAPPING_index;
         #endif
 
-	  log_info("map_command_index=%d\n",index);
+	  printf("map_command_index=%d\n",index);
 	 
       return index;
     }
@@ -308,19 +312,19 @@ void byle_kws_task(void)
 	 #if (KWS_TYPE==kwsA)
 	 
 	 kws_msg.command_index=user_map_command(byle_kws_get_cmd());
-	     log_info("score=%d.%02d\n", (int)kws_msg.score, ((int)(kws_msg.score*100))%100);
+	     printf("score=%d.%02d\n", (int)kws_msg.score, ((int)(kws_msg.score*100))%100);
 		 
 		 
-	   log_info(" kws cmd %s  index=%d", byle_kws_get_cmd(),kws_msg.command_index);
+	   printf(" kws cmd %s  index=%d", byle_kws_get_cmd(),kws_msg.command_index);
 
          
 	   
            #ifdef EN_SCORE_THRED_FOR_EVERY_CMD
 		   
-	 log_info("thred=%d.%02d\n", (int)g_nlu_score_thred[kws_msg.command_index], ((int)(g_nlu_score_thred[kws_msg.command_index]*100))%100);
+	 printf("thred=%d.%02d\n", (int)g_nlu_score_thred[kws_msg.command_index], ((int)(g_nlu_score_thred[kws_msg.command_index]*100))%100);
            if(kws_msg.score>=g_nlu_score_thred[kws_msg.command_index])
            #else
-	   log_info("thred=%d.%02d\n", (int)KWS_CMD_SCORE_THRED, ((int)(KWS_CMD_SCORE_THRED*100))%100);
+	   printf("thred=%d.%02d\n", (int)KWS_CMD_SCORE_THRED, ((int)(KWS_CMD_SCORE_THRED*100))%100);
            if ((gByle_kws_ctl.engine_mode==ENGINE_KWS_MODE_WAKEUP&&kws_msg.score >= KWS_WAKEUP_SCORE_THRED)||
            (gByle_kws_ctl.engine_mode==ENGINE_KWS_MODE_CMD&&kws_msg.score >= KWS_CMD_SCORE_THRED))
            #endif
@@ -338,7 +342,7 @@ void byle_kws_task(void)
                               	{
                               	if(kws_msg.command_index==wakeUp_cmd_table[i])
                               	{
-                              	log_info(" on wake up cmd %d ", kws_msg.command_index);
+                              	printf(" on wake up cmd %d ", kws_msg.command_index);
                                    byle_kws_timer_out_set(BYLE_ASR_TIMEOUT);       
                               	break;
                               	}
@@ -346,7 +350,7 @@ void byle_kws_task(void)
                               	if(i>=wakeUp_cmd)
                               	{
                               	
-                              	log_info(" no wake up cmd %d ", kws_msg.command_index);
+                              	printf(" no wake up cmd %d ", kws_msg.command_index);
                               	return ;
                               	}
                                      #endif
@@ -354,7 +358,7 @@ void byle_kws_task(void)
 
                                         #if KWS_TONE_EN==0
         				byle_kws_user_stop(KWS_WORK_IDLE);
-        				 log_info("wake up cmd\r\n");
+        				 printf("wake up cmd\r\n");
         				 gByle_kws_ctl.engine_mode=ENGINE_KWS_MODE_CMD; 
                       			  byle_kws_user_start(gByle_kws_ctl.engine_mode);	
         				  #endif
@@ -388,7 +392,7 @@ void byle_kws_task(void)
            
 				  
                #if (KWS_TYPE==kwsC||KWS_TYPE==kwsC1)
-                  log_info("\r\n Cmd%d\r\n (%u)\r\n", kws_msg.command_index,kws_msg.score);
+                  printf("\r\n Cmd%d\r\n (%u)\r\n", kws_msg.command_index,kws_msg.score);
                user_handle_action(kws_msg.command_index);
                #endif
 
@@ -406,11 +410,11 @@ void byle_kws_task(void)
 	 u8 data_rsp_buffer[2];
 	 u8 cmd_data=0;
 			int ret = 0;
-		 log_info("kws timeout");
+		 printf("kws timeout");
           #ifdef BYLE_UATR_ENABLE
           #ifdef SEND_USER_CMD_EXIT
 	  byle_uart_tx(&cmd_table[SEND_USER_CMD_EXIT][0],BYLE_UART_SEND_USER_CMD_TABLE);
-	 log_info_buf(&cmd_table[SEND_USER_CMD_EXIT][0],BYLE_UART_SEND_USER_CMD_TABLE);
+	 printf_buf(&cmd_table[SEND_USER_CMD_EXIT][0],BYLE_UART_SEND_USER_CMD_TABLE);
           #endif
           #endif
 		  
@@ -424,7 +428,7 @@ void byle_kws_task(void)
  void byle_kws_timer_out_set(u8 time_out)
 {
 gByle_kws_ctl.kws_asr_time_out_cnt=time_out;
-log_info( "kws_asr_time_out set :%d", time_out);
+printf( "kws_asr_time_out set :%d", time_out);
 
 }
 void kws_1000ms_timer(void)
@@ -435,7 +439,7 @@ void kws_1000ms_timer(void)
          if(gByle_kws_ctl.kws_asr_time_out_cnt)
          {
          
-		 log_info("gByle_kws_ctl.kws_asr_time_out_cnt=%d\n",gByle_kws_ctl.kws_asr_time_out_cnt);
+		 printf("gByle_kws_ctl.kws_asr_time_out_cnt=%d\n",gByle_kws_ctl.kws_asr_time_out_cnt);
 		 if(--gByle_kws_ctl.kws_asr_time_out_cnt==0)
 		 	{
 		 	
@@ -462,7 +466,7 @@ void kws_1000ms_timer(void)
 
 void byle_kws_app_exit(void)
 {
- log_info("byle_kws_app_exit...!\r\n");
+ printf("byle_kws_app_exit...!\r\n");
 unregist_audio_adc_channel(&voice_speaker.sound);
 byle_kws_user_stop(KWS_WORK_INIT);
 task_kill("byle_asr");
@@ -498,7 +502,7 @@ void byle_kws_app(void)
     int msg[2];
     //adc enable
     kws_adc_init();
-    log_info("kws app run start ...!\r\n");
+    printf("kws app run start ...!\r\n");
    gByle_kws_ctl.state = KWS_WORK_INIT;
   gByle_kws_ctl.engine_mode=ENGINE_KWS_MODE_CMD;	
 
@@ -513,8 +517,10 @@ void byle_kws_app(void)
 #endif
 
 #if(KWS_TYPE==kwsA)
-  log_info("  int heap_buffer_size=%d   kws_buffer_size=%d  \r\n",heap_buffer_size1+heap_buffer_size2,kws_buffer_size);
+  printf("  int heap_buffer_size=%d   kws_buffer_size=%d  \r\n",heap_buffer_size1+heap_buffer_size2,kws_buffer_size);
+#if heap_buffer_size2
 byle_kws_set_heap_size(heap_buffer_size2);
+#endif
 err=byle_kws_init(kws_buffer,kws_buffer_size,heap_buffer,heap_buffer_size1);
 
 #endif
@@ -526,10 +532,10 @@ err=byle_kws_init(kws_buffer,kws_buffer_size,heap_buffer,heap_buffer_size1);
 
   if(err==errKWS_NoError)
   	{
-	  log_info("kbyle_kws_init ok!\r\n");
+	  printf("kbyle_kws_init ok!\r\n");
   	}
   else
-    log_info("kbyle_kws_init error =%d!\r\n",err);
+    printf("kbyle_kws_init error =%d!\r\n",err);
 
 
   #if(KWS_CMD_MODE==ENGINE_KWS_MODE_WAKEUP)
@@ -546,7 +552,7 @@ err=task_create(byle_kws_task, NULL, "byle_asr");
 if (err != OS_NO_ERR) {
 	printf("%s creat fail %x\n", __FUNCTION__,	err);
 }
-log_info("  byle_kws_app start ...........\r\n");
+printf("  byle_kws_app start ...........\r\n");
 
 //sys_s_hi_timerout_add(NULL, byle_kws_app_exit, 10000); //test
 
