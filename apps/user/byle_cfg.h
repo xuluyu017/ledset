@@ -76,6 +76,8 @@
 #define   ENGINE_KWS_MODE_INVALID 2
 
 #define  Byle_Authorization_keyI  0X11 //
+#define  Byle_Authorization_keyH  0X10 //
+
 #undef  TCFG_UART_TX_PORT  	
 #define  BYLE_TIMER_APP
 #define  USER_MCU_TIMER   JL_TIMER2
@@ -197,7 +199,7 @@
 //#define  KWS_TONE_EN  1
 #define  Byle_Kws_Lib_Type   KWSA_SDK_lib 
 #define KWA_customizable_lib
-#define Byle_Authorization_file  Byle_Authorization_keyI
+#define Byle_Authorization_file  Byle_Authorization_keyH//I
 #define  KWS_CMD_MODE  ENGINE_KWS_MODE_WAKEUP  
 #define TCFG_UART_TX_PORT  				IO_PORT_DP//串口发送脚配置
 #define flash_SIZE 0x80000
@@ -401,7 +403,8 @@
 #define COM_APP_TIMER_MAX  5
 #endif
 #ifndef Byle_Authorization_file
-#define Byle_Authorization_file  Byle_Authorization_keyI
+//#define Byle_Authorization_file  Byle_Authorization_keyI
+#define Byle_Authorization_file  Byle_Authorization_keyH
 #endif
 #ifndef KWS_CMD_MODE
 #define KWS_CMD_MODE  ENGINE_KWS_MODE_WAKEUP
