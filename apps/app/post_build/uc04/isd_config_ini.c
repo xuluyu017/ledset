@@ -90,6 +90,11 @@ SPI = CAT4(CONFIG_SPI_DATA_WIDTH, CONFIG_SPI_CLK_DIV, CONFIG_SPI_MODE, CONFIG_SP
            #if(Byle_Authorization_file==Byle_Authorization_keyI)
            #define  byle_tnk_file	  file--authrun-AD12N-id-317_keyI.tkn
            #endif
+           
+           #if(Byle_Authorization_file==Byle_Authorization_keyH)
+           #define  byle_tnk_file	  file--authrun-AD12N-id-317_keyH.tkn
+           #endif
+           
   #endif
  
  
