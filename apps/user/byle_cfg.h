@@ -41,6 +41,14 @@
 #define  KwsA_FAN_LIGHT_F6_100K 21
 #define  kwsA_wy_light_libC2 22
 
+#define  KWSA_switch_libS2 23//17
+
+#define  KWSA_light_libC2 24//18
+
+#define  KWSA_switch_libS3 25//19
+
+#define  KWSA_light_libC3 26//21
+
 //#define US320B4_kwsA_F6_demo
 //#define US320A8_kwsA_libC1_WY_V5
 //#define US320A8_kwsA_libC1_WY_V7
@@ -65,6 +73,8 @@
 #define    KWSA_SDK_DEMO
 //#define    US320A8_kwsA_MINIQ
 
+//#define US320A8_kwsA_libC3_RGB_V3
+// #define US320A8_BYLE_KWSA_switch_libS3
 
 #define KWS_USE_ID   "userMjAyMzA0MTExNDE5NDMV2zv0e7KXOvY"//"方案需要修改为自己的ID,才可以跑， 对应方案商唯一ID"//
 
@@ -83,6 +93,22 @@
 #define  USER_MCU_TIMER   JL_TIMER2
 #define  USER_IRQ_TIME_IDX                    IRQ_TIME2_IDX
 
+#ifdef US320A8_BYLE_KWSA_switch_libS3
+#define Byle_Authorization_file  Byle_Authorization_keyH//I
+#define  Byle_Kws_Lib_Type  KWSA_switch_libS3//KWSA_switch_libS2//KWSA_switch_libS1 
+#define  KWS_TYPE  kwsA
+#define  US320A8_BYLE_KWS_SWITCH
+#endif
+
+#ifdef  US320A8_kwsA_libC3_RGB_V3
+#define Byle_Authorization_file  Byle_Authorization_keyH//I
+#ifndef Byle_Kws_Lib_Type
+#define  Byle_Kws_Lib_Type  KWSA_light_libC3//KWSA_light_libC2//KWSA_light_libC1 
+#define  KWS_TYPE  kwsA
+#endif
+#define US320A8_RGB_V3
+#define US320A_kws_led
+#endif
 
 #ifdef  US320_irB_kwsA_K1lib_ch_RGB_V3
 #define  IR_LIB_TYPE lib_irB
@@ -367,8 +393,9 @@
 
 
 #ifdef US320A_kws_led
-
+#ifndef Byle_Authorization_file
 #define Byle_Authorization_file  Byle_Authorization_keyI//Byle_Authorization_keyI
+#endif
 #define BYLE_KWS_ASR
 #ifndef KWS_CMD_MODE
 #define  KWS_CMD_MODE  ENGINE_KWS_MODE_CMD// 	

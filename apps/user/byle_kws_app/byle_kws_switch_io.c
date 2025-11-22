@@ -416,7 +416,7 @@ void cmd_light_set_flash(u8 cnt)
 }
 
 
-#if(Byle_Kws_Lib_Type==KWSA_switch_libS1||Byle_Kws_Lib_Type==KWSC_switch_libC1)         
+#if(Byle_Kws_Lib_Type==KWSA_switch_libS1||Byle_Kws_Lib_Type==KWSC_switch_libC1||Byle_Kws_Lib_Type==KWSA_switch_libS2||Byle_Kws_Lib_Type==KWSA_switch_libS3)      
 
 int byle_switch_handle_action( int cmd_index)
 {

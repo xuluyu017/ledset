@@ -9,13 +9,13 @@
 #define ACOUSTIC_MODEL_FIELD_NEAR 0
 #define ACOUSTIC_MODEL_FIELD_FAR  1
 #ifndef KWS_WAKEUP_SCORE_THRED
-#define KWS_WAKEUP_SCORE_THRED  (-1.47)// (-1.47)  //  (-0.47) 	// (-1.47) // (-1.83)				 		整体提高灵敏度-2           还原 默认 (-1.47)
+#define KWS_WAKEUP_SCORE_THRED  (-0.25)//(-1.47)// (-1.47)  //  (-0.47) 	// (-1.47) // (-1.83)				 //		整体提高灵敏度-2           还原 默认 (-1.47)
 #endif
 #define KWS_SLEEP_SCORE_THRED    (-0.6)
 #ifndef KWS_CMD_SCORE_THRED
-#define KWS_CMD_SCORE_THRED   (-1.31)//(-0.81)// (-2.81)	//   (-1.81)	//(-0.81)	// (-1.83)			 	整体提高灵敏度-2           还原 默认 (-1.47)
+#define KWS_CMD_SCORE_THRED   (-0.75)//(-1.31)//(-0.81)// (-2.81)	//   (-1.81)	//(-0.81)	// (-1.83)			 //	整体提高灵敏度-2           还原 默认 (-1.47)
 #endif
-#define KWS_HASHTABLE_SIZE   (44) //(40)  //V6:  (36) // V5:  (37)  // V4: (40)  // V2：  (41)	// (52)		 
+#define KWS_HASHTABLE_SIZE   (37)//(44) //(40)  //V6:  (36) // V5:  (37)  // V4: (40)  // V2：  (41)	// (52)		 //
 
 /*---MIC config---*/
 #define ACOUSTIC_MODEL_FIELD  ACOUSTIC_MODEL_FIELD_FAR
@@ -72,24 +72,24 @@ enum {
   eCMD_opennight,
   eCMD_closenight,
 
-  eCMD_coolmode,// 		    eCMD_setcolor,
-  eCMD_warmmode,		 
-  eCMD_sunmode,		 
-  eCMD_sunmode1,		 
-  eCMD_nightlight,		 
-  eCMD_setlight1,			 
+  eCMD_coolmode,// 		 //   eCMD_setcolor,
+  eCMD_warmmode,		 //
+  eCMD_sunmode,		 //
+  eCMD_sunmode1,		 //
+  eCMD_nightlight,		 //
+  eCMD_setlight1,			 //
   eCMD_sleep30s,
-  eCMD_dimthelight1,		 
-  eCMD_brightthelight1,		 
-  eCMD_open1,		 
-  eCMD_close1,		 
-  eCMD_changecolor2,		 
-  eCMD_changecolor3,		 
+  eCMD_dimthelight1,		 //
+  eCMD_brightthelight1,		 //
+  eCMD_open1,		 //
+  eCMD_close1,		 //
+  eCMD_changecolor2,		 //
+  eCMD_changecolor3,		 //
 
 };
 
 #define NLU_CONTENT_SIZE 34
-#define NLU_CONTENT_MAP_SIZE  44 //40  //V6: 36 //V5: 37 // V4: 40  //V2：  41	 
+#define NLU_CONTENT_MAP_SIZE  37//44 //40  //V6: 36 //V5: 37 // V4: 40  //V2：  41	 //
 
 extern const char* g_nlu_content_str[NLU_CONTENT_SIZE][2];
 extern const uni_nlu_content_mapping_t g_nlu_content_mapping[NLU_CONTENT_MAP_SIZE];
@@ -98,13 +98,14 @@ extern const uni_nlu_content_mapping_t g_nlu_content_mapping[NLU_CONTENT_MAP_SIZ
 
 #define SET_TIME_OUT   15 //s
 #define USER_open0  eCMD_open0
-#define USER_open2   eCMD_open1   
 
-#define USER_open3   eCMD_open2      
+#define USER_open2   eCMD_open1   //
 
-#define USER_open4   eCMD_opennight      
+#define USER_open3   eCMD_open2      //
+
+#define USER_open4   eCMD_opennight      //
 #ifndef  ENABLE_eCMD_setlight
-#define DIASBLE_eCMD_setlight   
+#define DIASBLE_eCMD_setlight   //
 #endif
 #define LIGHT_TIMER_EN
 
@@ -119,18 +120,18 @@ extern const uni_nlu_content_mapping_t g_nlu_content_mapping[NLU_CONTENT_MAP_SIZ
 
 static const float  g_nlu_score_thred[]= {
 KWS_WAKEUP_SCORE_THRED,//eCMD_wakeup_uni,
-(KWS_CMD_SCORE_THRED-2),//eCMD_default_open,             
-(KWS_CMD_SCORE_THRED-2),//eCMD_default_close,         
-(KWS_CMD_SCORE_THRED-1),//eCMD_changecolor,         
+(KWS_CMD_SCORE_THRED-2),//eCMD_default_open,             //
+(KWS_CMD_SCORE_THRED-2),//eCMD_default_close,         //
+(KWS_CMD_SCORE_THRED-1),//eCMD_changecolor,         //
 KWS_CMD_SCORE_THRED,//eCMD_open0,
 KWS_CMD_SCORE_THRED,//eCMD_close0,
 KWS_CMD_SCORE_THRED,//eCMD_cmd_no1,
 KWS_CMD_SCORE_THRED,//eCMD_dimthelight,
 KWS_CMD_SCORE_THRED,//eCMD_brightthelight,
-(KWS_CMD_SCORE_THRED-1),//eCMD_changecolor1,         
-(KWS_CMD_SCORE_THRED-4),//eCMD_open2,                          回来了 效果不好 灵敏度再-2
+(KWS_CMD_SCORE_THRED-1),//eCMD_changecolor1,         //
+(KWS_CMD_SCORE_THRED-4),//eCMD_open2,                    //      回来了 效果不好 灵敏度再-2
 (KWS_CMD_SCORE_THRED-4),//eCMD_close2,
-(KWS_CMD_SCORE_THRED-4),//eCMD_close3,                   出去了 效果不好 灵敏度再-2
+(KWS_CMD_SCORE_THRED-4),//eCMD_close3,         //          出去了 效果不好 灵敏度再-2
 KWS_CMD_SCORE_THRED,//eCMD_setlight,
 KWS_CMD_SCORE_THRED,//eCMD_sleep10min,
 KWS_CMD_SCORE_THRED,//eCMD_sleep30min,
@@ -171,21 +172,20 @@ KWS_CMD_SCORE_THRED,//eCMD_changecolor3,
 
 
 /*
+唤醒词：小艾小艾、你好小艾
 
-唤醒词（灵敏度：中）：小爱小爱、你好小爱
-命令词（灵敏度：中）：
 default_open=开灯
 default_close=关灯
 changecolor=变颜色
 open0=打开电灯
 close0=关闭电灯
-cmd_no1=开|关|色|开开|关关|灯灯|出去|睡觉|回来
+cmd_no1=开开|关关
 dimthelight=亮一点
 brightthelight=暗一点
 changecolor1=换颜色|改颜色
-open2=回来了
-close2=睡觉了
-close3=出去了
+open2=我回来了
+close2=我睡觉了
+close3=我出去了
 setlight=设置定时
 sleep10min=定时十分钟
 sleep30min=定时半小时

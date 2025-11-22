@@ -33,7 +33,9 @@
 #if (Byle_Kws_Lib_Type==KWSA_light_libK4)
 #include "byle_kwsA_light_libK4.h"
 #endif
-
+#if (Byle_Kws_Lib_Type==KWSA_light_libC2)          //
+#include "byle_kwsA_light_libC2.h"
+#endif
 #if (Byle_Kws_Lib_Type==KWSA_light_libC1)
 #include "byle_kwsA_light_libC1.h"
 #endif
@@ -50,6 +52,9 @@
 #include "byle_kwsA_Air_Conditioner_K2_lib.h"      
 #endif       
 
+#if (Byle_Kws_Lib_Type==KWSA_light_libC3)          
+#include "byle_kwsA_light_libC3.h"
+#endif
 #if (Byle_Kws_Lib_Type==KWSA_ac_libK1)
 #include "byle_kwsA_Air_Conditioner_K1_lib.h"
 #endif
@@ -59,6 +64,13 @@
 #include "byle_kwsA_switch_libS1.h"
 #endif
 
+#if (Byle_Kws_Lib_Type==KWSA_switch_libS2)         
+#include "byle_kwsA_switch_libS2.h"
+#endif
+
+#if (Byle_Kws_Lib_Type==KWSA_switch_libS3)         
+#include "byle_kwsA_switch_libS3.h"
+#endif
 #if (Byle_Kws_Lib_Type==KWSC_switch_libC1)         
 #include "byle_kwsC_switch_libS1.h"
 #endif
