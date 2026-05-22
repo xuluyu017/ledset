@@ -193,13 +193,13 @@ u16 msg=KEY_NULL;
 byle_switch_handle_action(index);
 
 #else
-if(Byle_kws_msg_table[index]!=KEY_NULL)
- 	{
+// if(Byle_kws_msg_table[index]!=KEY_NULL)
+//  	{
 
 	printf("appmsg=%d\n",index);
           app_task_put_key_msg(Byle_kws_msg_table[index]);
           msg=Byle_kws_msg_table[index];
- 	}
+ 	// }
 #endif
 
 #ifdef BYLE_UATR_ENABLE
@@ -326,7 +326,7 @@ void byle_kws_task(void)
            #else
 	   printf("thred=%d.%02d\n", (int)KWS_CMD_SCORE_THRED, ((int)(KWS_CMD_SCORE_THRED*100))%100);
            if ((gByle_kws_ctl.engine_mode==ENGINE_KWS_MODE_WAKEUP&&kws_msg.score >= KWS_WAKEUP_SCORE_THRED)||
-           (gByle_kws_ctl.engine_mode==ENGINE_KWS_MODE_CMD&&kws_msg.score >= KWS_CMD_SCORE_THRED))
+           (gByle_kws_ctl.engine_mode==ENGINE_KWS_MODE_CMD&&kws_msg.score >= -2.0))
            #endif
            	{
 	  #endif
@@ -443,7 +443,7 @@ void kws_1000ms_timer(void)
 		 if(--gByle_kws_ctl.kws_asr_time_out_cnt==0)
 		 	{
 		 	
-			 set_kws_timeout();
+			//  set_kws_timeout();
 		 	}
            
          }

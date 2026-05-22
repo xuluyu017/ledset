@@ -226,7 +226,7 @@
 #define  Byle_Kws_Lib_Type   KWSA_SDK_lib 
 #define KWA_customizable_lib
 #define Byle_Authorization_file  Byle_Authorization_keyH//I
-#define  KWS_CMD_MODE  ENGINE_KWS_MODE_WAKEUP  
+#define  KWS_CMD_MODE  ENGINE_KWS_MODE_CMD  
 #define TCFG_UART_TX_PORT  				IO_PORT_DP//串口发送脚配置
 #define flash_SIZE 0x80000
 #endif

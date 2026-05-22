@@ -1,5 +1,6 @@
 #include "key_drv_io.h"
 #include "app_config.h"
+#include "gpio.h"
 
 #define LOG_TAG_CONST       NORM
 #define LOG_TAG             "[key_io]"
@@ -43,7 +44,9 @@ static u8 key_filter(u8 key)
 /*----------------------------------------------------------------------------*/
 void io_key_init(void)
 {
-    KEY_INIT();
+    //  KEY_INIT();    
+    usb_iomode(1);
+    gpio_set_mode(IO_KEY_PORT, PORT_INPUT_PULLDOWN_10K);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -57,33 +60,40 @@ void io_key_init(void)
 u8 get_iokey_value(void)
 {
     //key_puts("get_iokey_value\n");
+    // u8 key_num = NO_KEY;
+    // if (IS_KEY0_DOWN()) {
+    //     key_puts(" KEY0 ");
+    //     key_num = 0;
+    // }
+    // } else if (IS_KEY1_DOWN()) {
+    //     key_puts(" KEY1 ");
+    //     key_num = 1;
+    // } else if (IS_KEY2_DOWN()) {
+    //     key_puts(" KEY2 ");
+    //     key_num = 2;
+    // } else if (IS_KEY3_DOWN()) {
+    //     key_puts(" KEY3 ");
+    //     key_num = 3;
+    // } else if (IS_KEY4_DOWN()) {
+    //     key_puts(" KEY4 ");
+    //     key_num = 4;
+    // } else if (IS_KEY5_DOWN()) {
+    //     key_puts(" KEY5 ");
+    //     key_num = 5;
+    // } else if (IS_KEY6_DOWN()) {
+    //     key_puts(" KEY6 ");
+    //     key_num = 6;
+    // } else if (IS_KEY7_DOWN()) {
+    //     key_puts(" KEY7 ");
+    //     key_num = 7;
+    // }
+      key_puts("get_iokey_value\n");
     u8 key_num = NO_KEY;
-    if (IS_KEY0_DOWN()) {
+    if (gpio_read(IO_KEY_PORT)) {
         key_puts(" KEY0 ");
+        // printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n");
         key_num = 0;
-    } else if (IS_KEY1_DOWN()) {
-        key_puts(" KEY1 ");
-        key_num = 1;
-    } else if (IS_KEY2_DOWN()) {
-        key_puts(" KEY2 ");
-        key_num = 2;
-    } else if (IS_KEY3_DOWN()) {
-        key_puts(" KEY3 ");
-        key_num = 3;
-    } else if (IS_KEY4_DOWN()) {
-        key_puts(" KEY4 ");
-        key_num = 4;
-    } else if (IS_KEY5_DOWN()) {
-        key_puts(" KEY5 ");
-        key_num = 5;
-    } else if (IS_KEY6_DOWN()) {
-        key_puts(" KEY6 ");
-        key_num = 6;
-    } else if (IS_KEY7_DOWN()) {
-        key_puts(" KEY7 ");
-        key_num = 7;
     }
-
     return key_filter(key_num);
 }
 

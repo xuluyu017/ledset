@@ -28,8 +28,9 @@
 #include "timer_app.h"
 #include "byle_uart_api.h"
 #include "user_pwm.h"
+#include "gpio.h"
 
-
+#define LED_PWM_PORT
 #define LOG_TAG_CONST       NORM
 #define LOG_TAG             "[user]"
 #include "log.h"
@@ -143,6 +144,7 @@ else
 
 void user_io_init(void)
 {
+
     key_init();
 
 #ifdef MUSIC_LED_CODE_LESS
@@ -271,6 +273,11 @@ byle_uart_init();
 
 #ifdef MUSIC_LED_CODE_LESS
 MusicLedCtlInt();
+#endif
+
+#ifdef LED_PWM_PORT
+    user_pwm_init(IO_PORT_DP, JL_TIMER1, 1, 10000);
+    user_set_pwm_duty(JL_TIMER1, 0);
 #endif
 
 #ifdef AC_zero_port
@@ -405,27 +412,584 @@ return msg;
 
 }
 
+
 #endif
+
+u8 led_max_flag = 0;
+u8 led_flag = 0;
+s16 duty_cnt = 0;
+u8 cabinet_flag = 0;
+u8 wardrobe_flag = 0;
+u8 shoe_cabinet_flag = 0;
+u8 wine_cabinet_flag = 0;
+u8 led_mode_set = 0;
+u16 timer_show_id = 0;
+u8 led_up_down_eage = 0;
+u16 led_delay_timer_id = 0;
+
+void led_delay_off(void)
+{
+	log_info("led_delay_off");
+	user_set_pwm_duty(JL_TIMER1, 255);
+	led_delay_timer_id = 0;
+	led_flag = 0;
+}
+
+void led_set_ledoff(void)
+{
+	log_info("led_set_ledoff");
+	user_set_pwm_duty(JL_TIMER1, 255);
+}
+
+void led_set_ledon(void)
+{
+	log_info("led_set_ledon");
+	user_set_pwm_duty(JL_TIMER1, duty_cnt);
+}
+
+void led_show_twice(void)
+{
+	static u8 cnt = 0;
+	user_set_pwm_duty(JL_TIMER1, 255*(cnt%2));
+	if(cnt == 3)
+	{	
+		cnt = 0;
+		sys_hi_timer_del(timer_show_id);
+		timer_show_id = 0;
+		return;
+	}
+	cnt++;
+}
+
+void led_set_mode_over(void)
+{
+	led_mode_set = 0;
+}
+
 
 
 int byle_user_app_msg(int msg)
 {
 	switch(msg)
 		{
-
-			case MSG_POWER_OFF:
-		
+			case KEY_PWM_CONTROL:
+				printf("KEY_PWM_CONTROL");
+				if(led_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, 255);
+					sys_hi_timer_del(led_delay_timer_id);
+					led_delay_timer_id = 0;
+					led_flag = 0;
+				}
+				else 
+				{
+					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_flag = 1;
+				}
+				// {
+				// 	static u8 led_flag = 0;
+				// 	gpio_set_output_value(IO_PORT_DM, led_flag);
+				// 	led_flag = !led_flag;
+				// }				
 				break;
-			
-			case MSG_POWER_ON:
-		
+			case KEY_PWM_LONG:
+				printf("KEY_PWM_LONG");
+				printf("duty_cnt = %d\n", duty_cnt);
+				if(led_flag)
+				{
+					if(!led_max_flag)
+					{
+						if(duty_cnt<242)
+						{
+							duty_cnt +=1;
+							user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						}
+						if(duty_cnt >= 242 && led_up_down_eage == 0)
+						{
+							led_up_down_eage = 1;
+							duty_cnt = 242;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+						}
+					}
+					else
+					{
+						if(duty_cnt>0)
+						{
+							duty_cnt -=1;
+							user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						}
+						if(duty_cnt <= 0 && led_up_down_eage == 0)
+						{
+							led_up_down_eage = 1;
+							duty_cnt = 0;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+						}
+					}				
+				}
 				break;
-			case MSG_SYS_1S:
-				log_info("MSG_SYS_1S");
-		      break;
+			case KEY_PRESS_UP:
+				printf("KEY_PRESS_UP");
+				led_max_flag = !led_max_flag;
+				led_up_down_eage = 0;
+					// if(duty_cnt == 255)
+					// 	led_max_flag = 1;
+					// else if(duty_cnt == 0)
+					// 	led_max_flag = 0;
+				break;
+			case KEY_DOUBLE_CLICK:
+				printf("KEY_DOUBLE_CLICK");
+				{
+					static u8 led_flag = 0;
+					gpio_set_output_value(IO_PORT_DM, led_flag);
+					led_flag = !led_flag;
+				}
+				break;
+			case TURNON_LED:
+				printf("TURNON_LED");
+				if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)				
+					user_set_pwm_duty(JL_TIMER1, duty_cnt);led_flag = 1;			
+				break;
+			case CABINET_LED_ON:
+				printf("CABINET_LED_ON");
+				if(cabinet_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_flag = 1;
+				}
+				break;
+			case WARDROBE_LED_ON:
+				printf("WARDROBE_LED_ON");
+				if(wardrobe_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_flag = 1;
+				}
+				break;
+			case SHOE_CABINET_LED_ON:
+				printf("SHOE_CABINET_LED_ON");
+				if(shoe_cabinet_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_flag = 1;
+				}
+				break;
+			case WINE_CABINET_LED_ON:
+				printf("WINE_CABINET_LED_ON");
+				if(wine_cabinet_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_flag = 1;
+				}
+				break;
+			case TURNOFF_LED:
+				printf("TURNOFF_LED");
+				if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)		
+				{		
+					user_set_pwm_duty(JL_TIMER1, 255);led_flag = 0;
+					sys_hi_timer_del(led_delay_timer_id);
+					led_delay_timer_id = 0;
+				}
+				break;
+			case CABINET_LED_OFF:
+				printf("CABINET_LED_OFF");
+				if(cabinet_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, 255);
+					led_flag = 0;
+					sys_hi_timer_del(led_delay_timer_id);
+					led_delay_timer_id = 0;
+				}
+				break;
+			case WARDROBE_LED_OFF:
+				printf("WARDROBE_LED_OFF");	
+				if(wardrobe_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, 255);
+					led_flag = 0;
+					sys_hi_timer_del(led_delay_timer_id);
+					led_delay_timer_id = 0;
+				}
+				break;
+			case SHOE_CABINET_LED_OFF:
+				printf("SHOE_CABINET_LED_OFF");
+				if(shoe_cabinet_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, 255);
+					led_flag = 0;
+					sys_hi_timer_del(led_delay_timer_id);
+					led_delay_timer_id = 0;
+				}
+				break;
+			case WINE_CABINET_LED_OFF:
+				printf("WINE_CABINET_LED_OFF");
+				if(wine_cabinet_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, 255);
+					led_flag = 0;
+					sys_hi_timer_del(led_delay_timer_id);
+					led_delay_timer_id = 0;
+				}
+				break;
+			case LIGHT_UP_LED:
+				printf("LIGHT_UP_LED");	
+				if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
+				{	
+					if(led_flag)
+					{
+						if(duty_cnt>0)
+							duty_cnt -=51;
+						if(duty_cnt <= 0)
+						{
+							duty_cnt = 0;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
 
-
-
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case CABINET_LED_UP:
+				printf("CABINET_LED_UP");
+				if(cabinet_flag)
+				{	
+					if(led_flag)
+					{
+						if(duty_cnt>0)
+							duty_cnt -=51;
+						if(duty_cnt <= 0)
+						{
+							duty_cnt = 0;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case WARDROBE_LED_UP:
+				printf("WARDROBE_LED_UP");
+				if(wardrobe_flag)
+				{	
+					if(led_flag)
+					{
+						if(duty_cnt>0)
+							duty_cnt -=51;
+						if(duty_cnt <= 0)
+						{
+							duty_cnt = 0;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case SHOE_CABINET_LED_UP:
+				printf("SHOE_CABINET_LED_UP");
+				if(shoe_cabinet_flag)
+				{	
+					if(led_flag)
+					{
+						if(duty_cnt>0)
+							duty_cnt -=51;
+						if(duty_cnt <= 0)
+						{
+							duty_cnt = 0;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case WINE_CABINET_LED_UP:
+				printf("WINE_CABINET_LED_UP");
+				if(wine_cabinet_flag)
+				{	
+					if(led_flag)
+					{
+						if(duty_cnt>0)
+							duty_cnt -=51;
+						if(duty_cnt <= 0)
+						{
+							duty_cnt = 0;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case LIGHT_DOWN_LED:
+				printf("LIGHT_DOWN_LED");
+				if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
+				{	
+					if(led_flag)
+					{
+						if(duty_cnt<242)
+							duty_cnt +=51;
+						if(duty_cnt >= 242)
+						{
+							duty_cnt = 242;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case CABINET_LED_DOWN:
+				printf("CABINET_LED_DOWN");
+				if(cabinet_flag)
+				{
+					if(led_flag)
+					{
+						if(duty_cnt<242)
+							duty_cnt +=51;
+						if(duty_cnt >= 242)
+						{
+							duty_cnt = 242;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case WARDROBE_LED_DOWN:
+				printf("WARDROBE_LED_DOWN");
+				if(wardrobe_flag)
+				{
+					if(led_flag)
+					{
+						if(duty_cnt<242)
+							duty_cnt +=51;
+						if(duty_cnt >= 242)
+						{
+							duty_cnt = 242;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case SHOE_CABINET_LED_DOWN:
+				printf("SHOE_CABINET_LED_DOWN");
+				if(shoe_cabinet_flag)
+				{
+					if(led_flag)
+					{
+						if(duty_cnt<242)
+							duty_cnt +=51;
+						if(duty_cnt >= 242)
+						{
+							duty_cnt = 242;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case WINE_CABINET_LED_DOWN:
+				printf("WINE_CABINET_LED_DOWN");
+				if(wine_cabinet_flag)
+				{
+					if(led_flag)
+					{
+						if(duty_cnt<242)
+							duty_cnt +=51;
+						if(duty_cnt >= 242)
+						{
+							duty_cnt = 242;
+							user_set_pwm_duty(JL_TIMER1, 255);
+							sys_hi_timeout_add(NULL,led_set_ledon, 500);
+							break;
+						}
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				}
+				break;
+			case SLEEP_MODE_LED:
+				printf("SLEEP_MODE_LED");
+				// if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
+				// {
+					if(led_flag)
+					{
+						duty_cnt = 242;
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					}
+				// }
+				break;
+			case DELAY_MODE_LED:
+				printf("DELAY_MODE_LED");
+				// if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
+				// {
+					if(led_flag)
+					{
+						user_set_pwm_duty(JL_TIMER1, 255);
+						sys_hi_timeout_add(NULL,led_set_ledon, 500);
+						led_delay_timer_id = sys_hi_timeout_add(NULL, led_delay_off, 30000);
+					}
+				// }
+				break;
+			case SHOW_MODE_LED:
+				printf("SHOW_MODE_LED");
+				// if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
+				// {
+					if(led_flag)
+					{
+						duty_cnt = 0;
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);					
+					}
+				// }
+				break;
+			case LOW_POWER_MODE_LED:
+				printf("LOW_POWER_MODE_LED");	
+				// if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
+				// {
+					if(led_flag)
+					{
+						duty_cnt = 153;
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);					
+					}
+				//}
+				break;
+			case SET_LIGHT_LED:
+				printf("SET_LIGHT_LED");
+				if(!led_flag)
+				{
+					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					sys_hi_timeout_add(NULL, led_set_ledoff,500);
+					led_mode_set = 1;
+					sys_hi_timeout_add(NULL, led_set_mode_over,10000);
+				}
+				else 
+				{
+					user_set_pwm_duty(JL_TIMER1, 255);
+					sys_hi_timeout_add(NULL, led_set_ledon,500);
+					led_mode_set = 1;
+					sys_hi_timeout_add(NULL, led_set_mode_over,10000);
+				}
+				break;
+			case SET_NORMAL_MODE_LED:
+				printf("SET_NORMAL_MODE_LED");
+				if(led_mode_set)
+				{
+					if(!led_flag)
+					{
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
+					}
+					else 
+					{
+						user_set_pwm_duty(JL_TIMER1, 255);
+						sys_hi_timeout_add(NULL, led_set_ledon,500);				
+					}
+					cabinet_flag = 0;
+					wardrobe_flag = 0;
+					shoe_cabinet_flag = 0;
+					wine_cabinet_flag = 0;
+					led_mode_set = 0;
+				}
+				break;
+			case SET_CABINET_LED:
+				printf("SET_CABINET_LED");
+				if(led_mode_set)
+				{
+					if(!led_flag)
+					{
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
+					}
+					else 
+					{
+						user_set_pwm_duty(JL_TIMER1, 255);
+						sys_hi_timeout_add(NULL, led_set_ledon,500);				
+					}
+					cabinet_flag = 1;
+					wardrobe_flag = 0;
+					shoe_cabinet_flag = 0;
+					wine_cabinet_flag = 0;
+					led_mode_set = 0;
+				}
+				break;
+			case SET_WARDROBE_LED:
+				printf("SET_WARDROBE_LED");
+				if(led_mode_set)
+				{
+					if(!led_flag)
+					{
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
+					}
+					else 
+					{
+						user_set_pwm_duty(JL_TIMER1, 255);
+						sys_hi_timeout_add(NULL, led_set_ledon,500);				
+					}
+					cabinet_flag = 0;
+					wardrobe_flag = 1;
+					shoe_cabinet_flag = 0;
+					wine_cabinet_flag = 0;
+					led_mode_set = 0;
+				}
+				break;
+			case SET_SHOE_CABINET_LED:
+				printf("SET_SHOE_CABINET_LED");
+				if(led_mode_set)
+				{
+					if(!led_flag)
+					{
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
+					}
+					else 
+					{
+						user_set_pwm_duty(JL_TIMER1, 255);
+						sys_hi_timeout_add(NULL, led_set_ledon,500);				
+					}
+					cabinet_flag = 0;
+					wardrobe_flag = 0;
+					shoe_cabinet_flag = 1;
+					wine_cabinet_flag = 0;
+					led_mode_set = 0;
+				}
+				break;
+			case SET_WINE_CABINET_LED:
+				printf("SET_WINE_CABINET_LED");
+				if(led_mode_set)
+				{
+					if(!led_flag)
+					{
+						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
+					}
+					else 
+					{
+						user_set_pwm_duty(JL_TIMER1, 255);
+						sys_hi_timeout_add(NULL, led_set_ledon,500);				
+					}
+					cabinet_flag = 0;
+					wardrobe_flag = 0;
+					shoe_cabinet_flag = 0;
+					wine_cabinet_flag = 1;
+					led_mode_set = 0;
+				}
+				break;
 			default:
                         #ifdef MUSIC_LED_CODE_LESS
                      	 MusicLEDMsgProccess(msg);
@@ -498,7 +1062,9 @@ err=task_create(user_task, NULL, "user");//task_create demo 创建user线程任�
 if (err != OS_NO_ERR) {
 	printf("%s creat fail %x\n", __FUNCTION__,	err);
 }
-
+key_init();
+//指示灯IO初始化
+gpio_set_mode(IO_PORT_DM, PORT_OUTPUT_HIGH);
 #ifdef BYLE_KWS_ASR
  byle_kws_app();
 #endif

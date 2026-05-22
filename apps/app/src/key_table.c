@@ -62,7 +62,7 @@ const u16 adkey_msg_table[][AD_KEY_MAX_NUM] = {
 
 #endif
 
-#if KEY_IO_EN
+#if 0//KEY_IO_EN
 
 #define IO_KEY_SHORT \
 							/*00*/		NO_MSG,\
@@ -130,7 +130,7 @@ u16 app_key_msg_filter(u8 key_status, u8 key_num, u8 key_type)
         msg = adkey_msg_table[key_status][key_num];
         break;
 #endif
-#if KEY_IO_EN
+#if 0//KEY_IO_EN
     case KEY_TYPE_IO:
         msg = iokey_msg_table[key_status][key_num];
         break;

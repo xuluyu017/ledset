@@ -186,9 +186,9 @@ const u16 irff00_msg_table[][IR_KEY_MAX_NUM] = {			//Music模式下的遥控转�
 
 #if KEY_IO_EN
 #define IOKEY_SHORT_UP \
-							/*00*/		MSG_PP,\
-							/*01*/		MSG_PREV_FILE,\
-							/*02*/		MSG_NEXT_FILE,\
+							/*00*/		KEY_PWM_CONTROL,\
+							/*01*/		MSG_1,\
+							/*02*/		MSG_2,\
 							/*03*/		NO_MSG,\
 							/*04*/		NO_MSG,\
 							/*05*/		NO_MSG,\
@@ -198,10 +198,10 @@ const u16 irff00_msg_table[][IR_KEY_MAX_NUM] = {			//Music模式下的遥控转�
 							/*09*/		NO_MSG,\
 
 #define IOKEY_LONG \
-							/*00*/		MSG_FR,\
-							/*01*/		MSG_VOL_DOWN,\
-							/*02*/		MSG_VOL_UP,\
-							/*03*/		MSG_FF,\
+							/*00*/		MSG_0,\
+							/*01*/		MSG_1,\
+							/*02*/		MSG_2,\
+							/*03*/		MSG_3,\
 							/*04*/		MSG_1,\
 							/*05*/		MSG_2,\
 							/*06*/		MSG_3,\
@@ -210,10 +210,10 @@ const u16 irff00_msg_table[][IR_KEY_MAX_NUM] = {			//Music模式下的遥控转�
 							/*09*/		NO_MSG,\
 
 #define IOKEY_HOLD \
-							/*00*/		MSG_FR,\
-							/*01*/		MSG_VOL_DOWN,\
-							/*02*/		MSG_VOL_UP,\
-							/*03*/		MSG_FF,\
+							/*00*/		KEY_PWM_LONG,\
+							/*01*/		MSG_1,\
+							/*02*/		MSG_2,\
+							/*03*/		MSG_3,\
 							/*04*/		NO_MSG,\
 							/*05*/		NO_MSG,\
 							/*06*/		NO_MSG,\
@@ -222,7 +222,7 @@ const u16 irff00_msg_table[][IR_KEY_MAX_NUM] = {			//Music模式下的遥控转�
 							/*09*/		NO_MSG,\
 
 #define IOKEY_LONG_UP \
-							/*00*/		NO_MSG,\
+							/*00*/		KEY_PRESS_UP,\
 							/*01*/		NO_MSG,\
 							/*02*/		NO_MSG,\
 							/*03*/		NO_MSG,\
@@ -235,7 +235,7 @@ const u16 irff00_msg_table[][IR_KEY_MAX_NUM] = {			//Music模式下的遥控转�
 
 #if (KEY_DOUBLE_CLICK_EN)
 #define IOKEY_DOUBLE_KICK \
-							/*00*/		NO_MSG,\
+							/*00*/		KEY_DOUBLE_CLICK,\
 							/*01*/		NO_MSG,\
 							/*02*/		NO_MSG,\
 							/*03*/		NO_MSG,\
@@ -488,7 +488,7 @@ const u16 adkey_msg_table[][AD_KEY_MAX_NUM] = {
 #endif
 
 u16 user_key_msg_filter(u8 key_status, u8 key_num, u8 key_type)
-{
+{	
     u16 msg = NO_MSG;
     switch (key_type) {
 #if KEY_IO_EN

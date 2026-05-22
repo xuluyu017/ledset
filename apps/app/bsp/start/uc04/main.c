@@ -77,6 +77,7 @@ void c_main(int cfg_addr)
     port_init();
 
     efuse_init();
+    
   user_io_init();
 
     log_init(TCFG_UART_BAUDRATE);

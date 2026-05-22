@@ -93,13 +93,15 @@ void key_init(void)
 /*----------------------------------------------------------------------------*/
 static void key2msg_emit(u8 key_status, u8 key_num, u8 key_type)
 {
-    key_printf("key_status:%d key_num:%d key_type:%d \n", key_status, key_num, key_type);
+    // printf("key_status:%d key_num:%d key_type:%d \n", key_status, key_num, key_type);
     if (key_msg_filter) {
         u16 msg = key_msg_filter(key_status, key_num, key_type);
         if (msg != NO_MSG) {
+            // printf("post msg:0x%x \n", msg);
             int ret = post_msg(msg);
+            // printf("post msg ret:%d \n", ret);
             if (ret != 0) {
-                key_printf("error !!! msg pool full \n");
+                printf("error !!! msg pool full \n");
             }
         }
     }
@@ -118,10 +120,9 @@ void key_scan(void)
 {
     static volatile u8 key_type = NO_KEY;        ///<按键类型
     static volatile u8 last_key = NO_KEY;
-    static volatile u8 key_press_counter = 0;
+    static volatile u16 key_press_counter = 0;
     volatile u8 cur_key = 0, key_status = 0, back_last_key = 0;
     /* key_io_t key; */
-
 #if (KEY_DOUBLE_CLICK_EN)
     static u8 double_last_key = 0;
     static u8 key_press_flag = 0;

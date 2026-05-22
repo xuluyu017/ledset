@@ -4,7 +4,7 @@
 
 
 
-#define UART_DEBUG 1
+#define UART_DEBUG 0
 
 void uart_init();
 void putchar(char a);

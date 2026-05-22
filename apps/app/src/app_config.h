@@ -18,13 +18,13 @@
 #define TCFG_HSB_DIV                        HSB_DIV1
 
 /*---------UART Configuration---------------*/
-#define TCFG_DEBUG_ENABLE                   0//ENABLE_THIS_MOUDLE//调试总开关       //BZ  US320A8_BYLE_KWSA_switch_libS1_WAKEUP  0  ???
-#define TCFG_UART_TX_PORT  					IO_PORT_DM//IO_PORTA_14//IO_PORT_DP//IO_PORT_DM//IO_PORT_DP//IO_PORTA_14	//串口打印发送脚配置	//NO_CONFIG_PORT		BZ
+#define TCFG_DEBUG_ENABLE                   0//调试总开关       //BZ  US320A8_BYLE_KWSA_switch_libS1_WAKEUP  0  ???
+#define TCFG_UART_TX_PORT  					IO_PORT_DP//IO_PORTA_14//IO_PORT_DP//IO_PORT_DM//IO_PORT_DP//IO_PORTA_14	//串口打印发送脚配置	//NO_CONFIG_PORT		BZ
 #define TCFG_UART_BAUDRATE  				1000000     //串口波打印特率配置
 
 /*---------LOW POWER Configuration----------*/
 #define KEY_WAKEUP_ENABLE				0//	ENABLE//按键唤醒使能
-#define KEY_WAKEUP_IO				    	IO_PORTA_10//按键唤醒IO选择
+#define KEY_WAKEUP_IO				    	IO_PORTA_01//按键唤醒IO选择
 #define KEY_WAKEUP_EDGE				        FALLING_EDGE//唤醒方式选择
 #define KEY_PULLUP_DOWN_ENABLE				ENABLE//内部上下拉是否使能
 #define KEY_FILTER_ENABLE				    ENABLE//滤波使能
@@ -40,7 +40,7 @@
 //充电唤醒--SDK中没有这个充电唤醒流程，只提供对应的充电唤醒IO,用户需根据对应充电IC进行开发,这里只起demo的作用
 
 /*---------KEY Configuration-------------------*/
-#define KEY_IO_EN         	                DISABLE//<IO按键使能
+#define KEY_IO_EN         	                ENABLE//<IO按键使能
 #define KEY_AD_EN				            DISABLE//<AD按键使能
 //选择何种按键唤醒
 //AD KEY

@@ -5,7 +5,7 @@
 // #define KEY_UART_DEBUG
 
 #ifndef KEY_DOUBLE_CLICK_EN
-#define KEY_DOUBLE_CLICK_EN 0
+#define KEY_DOUBLE_CLICK_EN 1
 #endif
 #ifdef KEY_UART_DEBUG
 #define key_puts           log_info
@@ -31,10 +31,10 @@ typedef enum {
 } KEY_TYPE;
 
 /*按键门槛值*/
-#define KEY_BASE_CNT  2
-#define KEY_LONG_CNT  75
-#define KEY_HOLD_CNT  15
-#define KEY_SHORT_CNT 3
+#define KEY_BASE_CNT  20
+#define KEY_LONG_CNT  1000
+#define KEY_HOLD_CNT  10
+#define KEY_SHORT_CNT 35
 
 /*按键状态*/
 enum {
@@ -56,7 +56,7 @@ enum {
 #define TOUCH_KEY_MAX_NUM	10
 #define MIC_KEY_MAX_NUM     3
 
-#define KEY_DOUBLE_CLICK_CNT    35 //35*10ms
+#define KEY_DOUBLE_CLICK_CNT    150 //35*10ms
 
 
 #define NO_KEY          0xff
