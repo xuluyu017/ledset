@@ -50,6 +50,10 @@ typedef enum {
     VM_INDEX_EXT_SONG,
     VM_INDEX_VOL,
 #if 1
+    VM_LED_MODE_INFO,
+#endif
+
+#if 0
     VM_INDEX_SONG_BP,
     VM_INDEX_ENG_BP,
     VM_INDEX_POETRY_BP,
@@ -57,7 +61,7 @@ typedef enum {
     VM_INDEX_F1X_BP,
     VM_INDEX_EXT_SONG_BP,
 #endif
-
+#if 0
     /*mbox*/
     VM_INDEX_SYSMODE,
     VM_INDEX_UDISK_BP,
@@ -84,6 +88,7 @@ typedef enum {
 
     /* pmu_trim  */
     VM_INDEX_PMU_VOLTAGE,
+#endif
 
     VM_INDEX_MAX = 128,
 } VM_INDEX;

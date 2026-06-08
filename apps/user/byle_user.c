@@ -55,6 +55,7 @@ int bylelibprintf(const char *format, ...)
 	
 }
 user_global_info_t MyContrl;
+UserMode user_mode = {.cabinet_flag = 0, .wardrobe_flag = 0, .shoe_cabinet_flag = 0, .wine_cabinet_flag = 0, .led_mode_set = 0};
 
  /*----------------------------------------------------------------------------*/
  /**@brief	保存信息到fm_buf
@@ -101,6 +102,14 @@ user_global_info_t MyContrl;
 	 	{
 	 log_info("my_user_read_info last\n");
 	 	}
+
+//我的LED模式数据从VM中读取出来
+	ret = vm_read(VM_LED_MODE_INFO, &user_mode, sizeof(UserMode));
+	if(ret != sizeof(UserMode))
+	{
+		log_info("user_mode is null\n");
+		memset(&user_mode, 0x00, sizeof(UserMode));
+	}
  
  }
 
@@ -415,14 +424,10 @@ return msg;
 
 #endif
 
+
 u8 led_max_flag = 0;
 u8 led_flag = 0;
 s16 duty_cnt = 0;
-u8 cabinet_flag = 0;
-u8 wardrobe_flag = 0;
-u8 shoe_cabinet_flag = 0;
-u8 wine_cabinet_flag = 0;
-u8 led_mode_set = 0;
 u16 timer_show_id = 0;
 u8 led_up_down_eage = 0;
 u16 led_delay_timer_id = 0;
@@ -463,7 +468,7 @@ void led_show_twice(void)
 
 void led_set_mode_over(void)
 {
-	led_mode_set = 0;
+	user_mode.led_mode_set = 0;
 }
 
 
@@ -548,12 +553,12 @@ int byle_user_app_msg(int msg)
 				break;
 			case TURNON_LED:
 				printf("TURNON_LED");
-				if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)				
+				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)				
 					user_set_pwm_duty(JL_TIMER1, duty_cnt);led_flag = 1;			
 				break;
 			case CABINET_LED_ON:
 				printf("CABINET_LED_ON");
-				if(cabinet_flag)
+				if(user_mode.cabinet_flag)
 				{
 					user_set_pwm_duty(JL_TIMER1, duty_cnt);
 					led_flag = 1;
@@ -561,7 +566,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case WARDROBE_LED_ON:
 				printf("WARDROBE_LED_ON");
-				if(wardrobe_flag)
+				if(user_mode.wardrobe_flag)
 				{
 					user_set_pwm_duty(JL_TIMER1, duty_cnt);
 					led_flag = 1;
@@ -569,7 +574,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case SHOE_CABINET_LED_ON:
 				printf("SHOE_CABINET_LED_ON");
-				if(shoe_cabinet_flag)
+				if(user_mode.shoe_cabinet_flag)
 				{
 					user_set_pwm_duty(JL_TIMER1, duty_cnt);
 					led_flag = 1;
@@ -577,7 +582,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case WINE_CABINET_LED_ON:
 				printf("WINE_CABINET_LED_ON");
-				if(wine_cabinet_flag)
+				if(user_mode.wine_cabinet_flag)
 				{
 					user_set_pwm_duty(JL_TIMER1, duty_cnt);
 					led_flag = 1;
@@ -585,7 +590,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case TURNOFF_LED:
 				printf("TURNOFF_LED");
-				if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)		
+				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)		
 				{		
 					user_set_pwm_duty(JL_TIMER1, 255);led_flag = 0;
 					sys_hi_timer_del(led_delay_timer_id);
@@ -594,7 +599,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case CABINET_LED_OFF:
 				printf("CABINET_LED_OFF");
-				if(cabinet_flag)
+				if(user_mode.cabinet_flag)
 				{
 					user_set_pwm_duty(JL_TIMER1, 255);
 					led_flag = 0;
@@ -604,7 +609,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case WARDROBE_LED_OFF:
 				printf("WARDROBE_LED_OFF");	
-				if(wardrobe_flag)
+				if(user_mode.wardrobe_flag)
 				{
 					user_set_pwm_duty(JL_TIMER1, 255);
 					led_flag = 0;
@@ -614,7 +619,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case SHOE_CABINET_LED_OFF:
 				printf("SHOE_CABINET_LED_OFF");
-				if(shoe_cabinet_flag)
+				if(user_mode.shoe_cabinet_flag)
 				{
 					user_set_pwm_duty(JL_TIMER1, 255);
 					led_flag = 0;
@@ -624,7 +629,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case WINE_CABINET_LED_OFF:
 				printf("WINE_CABINET_LED_OFF");
-				if(wine_cabinet_flag)
+				if(user_mode.wine_cabinet_flag)
 				{
 					user_set_pwm_duty(JL_TIMER1, 255);
 					led_flag = 0;
@@ -634,7 +639,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case LIGHT_UP_LED:
 				printf("LIGHT_UP_LED");	
-				if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
+				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)
 				{	
 					if(led_flag)
 					{
@@ -654,7 +659,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case CABINET_LED_UP:
 				printf("CABINET_LED_UP");
-				if(cabinet_flag)
+				if(user_mode.cabinet_flag)
 				{	
 					if(led_flag)
 					{
@@ -673,7 +678,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case WARDROBE_LED_UP:
 				printf("WARDROBE_LED_UP");
-				if(wardrobe_flag)
+				if(user_mode.wardrobe_flag)
 				{	
 					if(led_flag)
 					{
@@ -692,7 +697,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case SHOE_CABINET_LED_UP:
 				printf("SHOE_CABINET_LED_UP");
-				if(shoe_cabinet_flag)
+				if(user_mode.shoe_cabinet_flag)
 				{	
 					if(led_flag)
 					{
@@ -711,7 +716,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case WINE_CABINET_LED_UP:
 				printf("WINE_CABINET_LED_UP");
-				if(wine_cabinet_flag)
+				if(user_mode.wine_cabinet_flag)
 				{	
 					if(led_flag)
 					{
@@ -730,7 +735,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case LIGHT_DOWN_LED:
 				printf("LIGHT_DOWN_LED");
-				if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
+				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)
 				{	
 					if(led_flag)
 					{
@@ -749,7 +754,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case CABINET_LED_DOWN:
 				printf("CABINET_LED_DOWN");
-				if(cabinet_flag)
+				if(user_mode.cabinet_flag)
 				{
 					if(led_flag)
 					{
@@ -768,7 +773,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case WARDROBE_LED_DOWN:
 				printf("WARDROBE_LED_DOWN");
-				if(wardrobe_flag)
+				if(user_mode.wardrobe_flag)
 				{
 					if(led_flag)
 					{
@@ -787,7 +792,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case SHOE_CABINET_LED_DOWN:
 				printf("SHOE_CABINET_LED_DOWN");
-				if(shoe_cabinet_flag)
+				if(user_mode.shoe_cabinet_flag)
 				{
 					if(led_flag)
 					{
@@ -806,7 +811,7 @@ int byle_user_app_msg(int msg)
 				break;
 			case WINE_CABINET_LED_DOWN:
 				printf("WINE_CABINET_LED_DOWN");
-				if(wine_cabinet_flag)
+				if(user_mode.wine_cabinet_flag)
 				{
 					if(led_flag)
 					{
@@ -824,49 +829,37 @@ int byle_user_app_msg(int msg)
 				}
 				break;
 			case SLEEP_MODE_LED:
-				printf("SLEEP_MODE_LED");
-				// if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
-				// {
+				printf("SLEEP_MODE_LED");		
 					if(led_flag)
 					{
 						duty_cnt = 242;
 						user_set_pwm_duty(JL_TIMER1, duty_cnt);
 					}
-				// }
 				break;
 			case DELAY_MODE_LED:
 				printf("DELAY_MODE_LED");
-				// if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
-				// {
 					if(led_flag)
 					{
 						user_set_pwm_duty(JL_TIMER1, 255);
 						sys_hi_timeout_add(NULL,led_set_ledon, 500);
 						led_delay_timer_id = sys_hi_timeout_add(NULL, led_delay_off, 30000);
 					}
-				// }
 				break;
 			case SHOW_MODE_LED:
-				printf("SHOW_MODE_LED");
-				// if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
-				// {
+				printf("SHOW_MODE_LED");				
 					if(led_flag)
 					{
 						duty_cnt = 0;
 						user_set_pwm_duty(JL_TIMER1, duty_cnt);					
 					}
-				// }
 				break;
 			case LOW_POWER_MODE_LED:
-				printf("LOW_POWER_MODE_LED");	
-				// if(!cabinet_flag && !wardrobe_flag && !shoe_cabinet_flag && !wine_cabinet_flag)
-				// {
+				printf("LOW_POWER_MODE_LED");			
 					if(led_flag)
 					{
 						duty_cnt = 153;
 						user_set_pwm_duty(JL_TIMER1, duty_cnt);					
 					}
-				//}
 				break;
 			case SET_LIGHT_LED:
 				printf("SET_LIGHT_LED");
@@ -874,20 +867,20 @@ int byle_user_app_msg(int msg)
 				{
 					user_set_pwm_duty(JL_TIMER1, duty_cnt);
 					sys_hi_timeout_add(NULL, led_set_ledoff,500);
-					led_mode_set = 1;
+					user_mode.led_mode_set = 1;
 					sys_hi_timeout_add(NULL, led_set_mode_over,10000);
 				}
 				else 
 				{
 					user_set_pwm_duty(JL_TIMER1, 255);
 					sys_hi_timeout_add(NULL, led_set_ledon,500);
-					led_mode_set = 1;
+					user_mode.led_mode_set = 1;
 					sys_hi_timeout_add(NULL, led_set_mode_over,10000);
 				}
 				break;
 			case SET_NORMAL_MODE_LED:
 				printf("SET_NORMAL_MODE_LED");
-				if(led_mode_set)
+				if(user_mode.led_mode_set)
 				{
 					if(!led_flag)
 					{
@@ -899,16 +892,18 @@ int byle_user_app_msg(int msg)
 						user_set_pwm_duty(JL_TIMER1, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
-					cabinet_flag = 0;
-					wardrobe_flag = 0;
-					shoe_cabinet_flag = 0;
-					wine_cabinet_flag = 0;
-					led_mode_set = 0;
+					user_mode.cabinet_flag = 0;
+					user_mode.wardrobe_flag = 0;
+					user_mode.shoe_cabinet_flag = 0;
+					user_mode.wine_cabinet_flag = 0;
+					user_mode.led_mode_set = 0;
+					
+					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
 				}
 				break;
 			case SET_CABINET_LED:
 				printf("SET_CABINET_LED");
-				if(led_mode_set)
+				if(user_mode.led_mode_set)
 				{
 					if(!led_flag)
 					{
@@ -920,16 +915,18 @@ int byle_user_app_msg(int msg)
 						user_set_pwm_duty(JL_TIMER1, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
-					cabinet_flag = 1;
-					wardrobe_flag = 0;
-					shoe_cabinet_flag = 0;
-					wine_cabinet_flag = 0;
-					led_mode_set = 0;
+					user_mode.cabinet_flag = 1;
+					user_mode.wardrobe_flag = 0;
+					user_mode.shoe_cabinet_flag = 0;
+					user_mode.wine_cabinet_flag = 0;
+					user_mode.led_mode_set = 0;
+
+					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
 				}
 				break;
 			case SET_WARDROBE_LED:
 				printf("SET_WARDROBE_LED");
-				if(led_mode_set)
+				if(user_mode.led_mode_set)
 				{
 					if(!led_flag)
 					{
@@ -941,16 +938,18 @@ int byle_user_app_msg(int msg)
 						user_set_pwm_duty(JL_TIMER1, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
-					cabinet_flag = 0;
-					wardrobe_flag = 1;
-					shoe_cabinet_flag = 0;
-					wine_cabinet_flag = 0;
-					led_mode_set = 0;
+					user_mode.cabinet_flag = 0;
+					user_mode.wardrobe_flag = 1;
+					user_mode.shoe_cabinet_flag = 0;
+					user_mode.wine_cabinet_flag = 0;
+					user_mode.led_mode_set = 0;
+
+					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
 				}
 				break;
 			case SET_SHOE_CABINET_LED:
 				printf("SET_SHOE_CABINET_LED");
-				if(led_mode_set)
+				if(user_mode.led_mode_set)
 				{
 					if(!led_flag)
 					{
@@ -962,16 +961,18 @@ int byle_user_app_msg(int msg)
 						user_set_pwm_duty(JL_TIMER1, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
-					cabinet_flag = 0;
-					wardrobe_flag = 0;
-					shoe_cabinet_flag = 1;
-					wine_cabinet_flag = 0;
-					led_mode_set = 0;
+					user_mode.cabinet_flag = 0;
+					user_mode.wardrobe_flag = 0;
+					user_mode.shoe_cabinet_flag = 1;
+					user_mode.wine_cabinet_flag = 0;
+					user_mode.led_mode_set = 0;
+
+					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
 				}
 				break;
 			case SET_WINE_CABINET_LED:
 				printf("SET_WINE_CABINET_LED");
-				if(led_mode_set)
+				if(user_mode.led_mode_set)
 				{
 					if(!led_flag)
 					{
@@ -983,11 +984,13 @@ int byle_user_app_msg(int msg)
 						user_set_pwm_duty(JL_TIMER1, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
-					cabinet_flag = 0;
-					wardrobe_flag = 0;
-					shoe_cabinet_flag = 0;
-					wine_cabinet_flag = 1;
-					led_mode_set = 0;
+					user_mode.cabinet_flag = 0;
+					user_mode.wardrobe_flag = 0;
+					user_mode.shoe_cabinet_flag = 0;
+					user_mode.wine_cabinet_flag = 1;
+					user_mode.led_mode_set = 0;
+
+					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
 				}
 				break;
 			default:

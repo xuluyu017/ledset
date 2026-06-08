@@ -35,6 +35,17 @@ typedef struct
   u8 data_check;
 
 } user_global_info_t;
+
+typedef struct user_mode_info
+{
+	u8 cabinet_flag;
+	u8 wardrobe_flag;
+	u8 shoe_cabinet_flag;
+	u8 wine_cabinet_flag;
+	u8 led_mode_set;
+
+}UserMode;
+
  extern user_global_info_t MyContrl;
  void user_loop(void);
 bool get_mic_onoff(void);
