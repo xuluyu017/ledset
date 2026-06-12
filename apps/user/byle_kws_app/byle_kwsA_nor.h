@@ -5,41 +5,18 @@
 
 #define BYLE_ASR_TIMEOUT           UNI_ASR_TIMEOUT   
 
-
 static const u16 Byle_kws_msg_table[]=
 { 
-  KEY_NULL,
-  TURNON_LED,
-	CABINET_LED_ON,
-	WARDROBE_LED_ON,
-	SHOE_CABINET_LED_ON,
-	WINE_CABINET_LED_ON,
-	TURNOFF_LED,
-	CABINET_LED_OFF,
-	WARDROBE_LED_OFF,
-	SHOE_CABINET_LED_OFF,
-	WINE_CABINET_LED_OFF,
-	LIGHT_UP_LED,
-	CABINET_LED_UP,
-	WARDROBE_LED_UP,
-	SHOE_CABINET_LED_UP,
-	WINE_CABINET_LED_UP,
-	LIGHT_DOWN_LED,
-	CABINET_LED_DOWN,
-	WARDROBE_LED_DOWN,
-	SHOE_CABINET_LED_DOWN,
-	WINE_CABINET_LED_DOWN, //  eCMD_wakeup_uni,  可以把每个消息对应词条顺序下来
-	SLEEP_MODE_LED,
-	DELAY_MODE_LED,
-	SHOW_MODE_LED,
-	LOW_POWER_MODE_LED,
-	SET_LIGHT_LED,
-	SET_NORMAL_MODE_LED,
-	SET_CABINET_LED,
-	SET_WARDROBE_LED,
-	SET_SHOE_CABINET_LED,
-	SET_WINE_CABINET_LED,
-
+    KEY_NULL,               // 0: eCMD_wakeup_uni
+    KEY_NULL,               // 1: eCMD_exitUni
+    TURNON_LED,             // 2: eCMD_light_on
+    TURNOFF_LED,            // 3: eCMD_light_off
+    LIGHT_UP_LED,           // 4: eCMD_light_up
+    LIGHT_DOWN_LED,         // 5: eCMD_light_down
+    SET_COLOR_WHITE_LED,    // 6: eCMD_set_white
+    DELAY_MODE_LED,         // 7: eCMD_delay_off
+    SET_COLOR_WARM_LED,     // 8: eCMD_set_warm
+    SET_COLOR_NEUTRAL_LED,  // 9: eCMD_set_neutral
 };
 
 

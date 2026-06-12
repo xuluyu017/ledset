@@ -8,6 +8,7 @@
 #include "timer.h"
 #include "gpio.h"
 #include "timer.h"
+#define PWM_HIGH_ON 0  // 共阳极灯带：PWM反相输出，HIGH=亮 LOW=灭
 #include "byle_cfg.h"
 #include "vm.h"
 #ifdef MUSIC_LED_CODE_LESS
@@ -30,6 +31,14 @@
 #include "user_pwm.h"
 #include "gpio.h"
 
+// ==== 双路色温 PWM 配置 ====
+// 冷白光 PWM : IO_PORT_DM + JL_TIMER0
+// 暖白光 PWM : IO_PORT_DP + JL_TIMER1
+#define CW_PWM_PORT    IO_PORT_DM
+#define WW_PWM_PORT    IO_PORT_DP
+#define CW_PWM_TIMER   JL_TIMER0
+#define WW_PWM_TIMER   JL_TIMER1
+#define PWM_FREQ       10000
 #define LED_PWM_PORT
 #define LOG_TAG_CONST       NORM
 #define LOG_TAG             "[user]"
@@ -278,15 +287,17 @@ timer_app_init();
 
 #ifdef BYLE_UATR_ENABLE
 byle_uart_init();
-#endif
+#endif  
 
 #ifdef MUSIC_LED_CODE_LESS
 MusicLedCtlInt();
 #endif
 
 #ifdef LED_PWM_PORT
-    user_pwm_init(IO_PORT_DP, JL_TIMER1, 1, 10000);
-    user_set_pwm_duty(JL_TIMER1, 0);
+    user_pwm_init(CW_PWM_PORT, CW_PWM_TIMER, 1, PWM_FREQ);
+    user_set_pwm_duty(CW_PWM_TIMER, 255);
+    user_pwm_init(WW_PWM_PORT, WW_PWM_TIMER, 1, PWM_FREQ);
+    user_set_pwm_duty(WW_PWM_TIMER, 255);
 #endif
 
 #ifdef AC_zero_port
@@ -431,11 +442,39 @@ s16 duty_cnt = 0;
 u16 timer_show_id = 0;
 u8 led_up_down_eage = 0;
 u16 led_delay_timer_id = 0;
+u8 led_color_mode = 0;  // 0=白光, 1=暖光, 2=中性光
+
+// 根据色温模式和亮度，设置双路 PWM
+void led_color_temp_apply(u8 brightness)
+{
+    u8 cw_duty, ww_duty;
+
+    switch (led_color_mode) {
+        case 0:  // 白光：仅冷白亮
+            cw_duty = brightness;
+            ww_duty = 255;
+            break;
+        case 1:  // 暖光：仅暖白亮
+            cw_duty = 255;
+            ww_duty = brightness;
+            break;
+        case 2:  // 中性光：冷白67% + 暖白33%
+            cw_duty = brightness * 2 / 3;
+            ww_duty = brightness * 1 / 3;
+            break;
+        default:
+            return;
+    }
+
+    user_set_pwm_duty(CW_PWM_TIMER, cw_duty);
+    user_set_pwm_duty(WW_PWM_TIMER, ww_duty);
+}
 
 void led_delay_off(void)
 {
 	log_info("led_delay_off");
-	user_set_pwm_duty(JL_TIMER1, 255);
+	user_set_pwm_duty(CW_PWM_TIMER, 255);
+	user_set_pwm_duty(WW_PWM_TIMER, 255);
 	led_delay_timer_id = 0;
 	led_flag = 0;
 }
@@ -443,21 +482,24 @@ void led_delay_off(void)
 void led_set_ledoff(void)
 {
 	log_info("led_set_ledoff");
-	user_set_pwm_duty(JL_TIMER1, 255);
+	user_set_pwm_duty(CW_PWM_TIMER, 255);
+	user_set_pwm_duty(WW_PWM_TIMER, 255);
 }
 
 void led_set_ledon(void)
 {
 	log_info("led_set_ledon");
-	user_set_pwm_duty(JL_TIMER1, duty_cnt);
+	led_color_temp_apply(duty_cnt);
 }
 
 void led_show_twice(void)
 {
 	static u8 cnt = 0;
-	user_set_pwm_duty(JL_TIMER1, 255*(cnt%2));
+	u8 val = 255 * (cnt % 2);
+	user_set_pwm_duty(CW_PWM_TIMER, val);
+	user_set_pwm_duty(WW_PWM_TIMER, val);
 	if(cnt == 3)
-	{	
+	{
 		cnt = 0;
 		sys_hi_timer_del(timer_show_id);
 		timer_show_id = 0;
@@ -481,21 +523,17 @@ int byle_user_app_msg(int msg)
 				printf("KEY_PWM_CONTROL");
 				if(led_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, 255);
+					user_set_pwm_duty(CW_PWM_TIMER, 255);
+					user_set_pwm_duty(WW_PWM_TIMER, 255);
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
 					led_flag = 0;
 				}
-				else 
+				else
 				{
-					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_color_temp_apply(duty_cnt);
 					led_flag = 1;
 				}
-				// {
-				// 	static u8 led_flag = 0;
-				// 	gpio_set_output_value(IO_PORT_DM, led_flag);
-				// 	led_flag = !led_flag;
-				// }				
 				break;
 			case KEY_PWM_LONG:
 				printf("KEY_PWM_LONG");
@@ -507,13 +545,14 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt<242)
 						{
 							duty_cnt +=1;
-							user_set_pwm_duty(JL_TIMER1, duty_cnt);
+							led_color_temp_apply(duty_cnt);
 						}
 						if(duty_cnt >= 242 && led_up_down_eage == 0)
 						{
 							led_up_down_eage = 1;
 							duty_cnt = 242;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);
+							user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 						}
 					}
@@ -522,16 +561,17 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt>0)
 						{
 							duty_cnt -=1;
-							user_set_pwm_duty(JL_TIMER1, duty_cnt);
+							led_color_temp_apply(duty_cnt);
 						}
 						if(duty_cnt <= 0 && led_up_down_eage == 0)
 						{
 							led_up_down_eage = 1;
 							duty_cnt = 0;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);
+							user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 						}
-					}				
+					}
 				}
 				break;
 			case KEY_PRESS_UP:
@@ -546,21 +586,47 @@ int byle_user_app_msg(int msg)
 			case KEY_DOUBLE_CLICK:
 				printf("KEY_DOUBLE_CLICK");
 				{
-					static u8 led_flag = 0;
-					gpio_set_output_value(IO_PORT_DM, led_flag);
-					led_flag = !led_flag;
+					static u8 led_flag2 = 0;
+					u8 val = led_flag2 ? 0 : 255;
+					user_set_pwm_duty(CW_PWM_TIMER, val);
+					user_set_pwm_duty(WW_PWM_TIMER, val);
+					led_flag2 = !led_flag2;
 				}
 				break;
+				// ... (其他原有 case)
+        
+        case SET_COLOR_WHITE_LED:
+            printf(">>> 语音指令: 调成白光\n");
+            led_flag = 1;
+            led_color_mode = 0;
+            led_color_temp_apply(duty_cnt);
+            break;
+
+        case SET_COLOR_WARM_LED:
+            printf(">>> 语音指令: 调成暖光\n");
+            led_flag = 1;
+            led_color_mode = 1;
+            led_color_temp_apply(duty_cnt);
+            break;
+
+        case SET_COLOR_NEUTRAL_LED:
+            printf(">>> 语音指令: 调成中性光\n");
+            led_flag = 1;
+            led_color_mode = 2;
+            led_color_temp_apply(duty_cnt);
+            break;
+
+        // ...
 			case TURNON_LED:
 				printf("TURNON_LED");
 				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)				
-					user_set_pwm_duty(JL_TIMER1, duty_cnt);led_flag = 1;			
+					led_color_temp_apply(duty_cnt);led_flag = 1;			
 				break;
 			case CABINET_LED_ON:
 				printf("CABINET_LED_ON");
 				if(user_mode.cabinet_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_color_temp_apply(duty_cnt);
 					led_flag = 1;
 				}
 				break;
@@ -568,7 +634,7 @@ int byle_user_app_msg(int msg)
 				printf("WARDROBE_LED_ON");
 				if(user_mode.wardrobe_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_color_temp_apply(duty_cnt);
 					led_flag = 1;
 				}
 				break;
@@ -576,7 +642,7 @@ int byle_user_app_msg(int msg)
 				printf("SHOE_CABINET_LED_ON");
 				if(user_mode.shoe_cabinet_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_color_temp_apply(duty_cnt);
 					led_flag = 1;
 				}
 				break;
@@ -584,7 +650,7 @@ int byle_user_app_msg(int msg)
 				printf("WINE_CABINET_LED_ON");
 				if(user_mode.wine_cabinet_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_color_temp_apply(duty_cnt);
 					led_flag = 1;
 				}
 				break;
@@ -592,7 +658,7 @@ int byle_user_app_msg(int msg)
 				printf("TURNOFF_LED");
 				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)		
 				{		
-					user_set_pwm_duty(JL_TIMER1, 255);led_flag = 0;
+					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);led_flag = 0;
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
 				}
@@ -601,7 +667,7 @@ int byle_user_app_msg(int msg)
 				printf("CABINET_LED_OFF");
 				if(user_mode.cabinet_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, 255);
+					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 					led_flag = 0;
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
@@ -611,7 +677,7 @@ int byle_user_app_msg(int msg)
 				printf("WARDROBE_LED_OFF");	
 				if(user_mode.wardrobe_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, 255);
+					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 					led_flag = 0;
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
@@ -621,7 +687,7 @@ int byle_user_app_msg(int msg)
 				printf("SHOE_CABINET_LED_OFF");
 				if(user_mode.shoe_cabinet_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, 255);
+					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 					led_flag = 0;
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
@@ -631,7 +697,7 @@ int byle_user_app_msg(int msg)
 				printf("WINE_CABINET_LED_OFF");
 				if(user_mode.wine_cabinet_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, 255);
+					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 					led_flag = 0;
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
@@ -648,12 +714,12 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -668,11 +734,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -687,11 +753,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -706,11 +772,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -725,11 +791,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -744,11 +810,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -763,11 +829,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -782,11 +848,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -801,11 +867,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -820,11 +886,11 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
-							user_set_pwm_duty(JL_TIMER1, 255);
+							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				}
 				break;
@@ -833,14 +899,14 @@ int byle_user_app_msg(int msg)
 					if(led_flag)
 					{
 						duty_cnt = 242;
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 					}
 				break;
 			case DELAY_MODE_LED:
 				printf("DELAY_MODE_LED");
 					if(led_flag)
 					{
-						user_set_pwm_duty(JL_TIMER1, 255);
+						user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 						sys_hi_timeout_add(NULL,led_set_ledon, 500);
 						led_delay_timer_id = sys_hi_timeout_add(NULL, led_delay_off, 30000);
 					}
@@ -850,7 +916,7 @@ int byle_user_app_msg(int msg)
 					if(led_flag)
 					{
 						duty_cnt = 0;
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);					
+						led_color_temp_apply(duty_cnt);					
 					}
 				break;
 			case LOW_POWER_MODE_LED:
@@ -858,21 +924,21 @@ int byle_user_app_msg(int msg)
 					if(led_flag)
 					{
 						duty_cnt = 153;
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);					
+						led_color_temp_apply(duty_cnt);					
 					}
 				break;
 			case SET_LIGHT_LED:
 				printf("SET_LIGHT_LED");
 				if(!led_flag)
 				{
-					user_set_pwm_duty(JL_TIMER1, duty_cnt);
+					led_color_temp_apply(duty_cnt);
 					sys_hi_timeout_add(NULL, led_set_ledoff,500);
 					user_mode.led_mode_set = 1;
 					sys_hi_timeout_add(NULL, led_set_mode_over,10000);
 				}
 				else 
 				{
-					user_set_pwm_duty(JL_TIMER1, 255);
+					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 					sys_hi_timeout_add(NULL, led_set_ledon,500);
 					user_mode.led_mode_set = 1;
 					sys_hi_timeout_add(NULL, led_set_mode_over,10000);
@@ -884,12 +950,12 @@ int byle_user_app_msg(int msg)
 				{
 					if(!led_flag)
 					{
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
 					}
 					else 
 					{
-						user_set_pwm_duty(JL_TIMER1, 255);
+						user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
 					user_mode.cabinet_flag = 0;
@@ -907,12 +973,12 @@ int byle_user_app_msg(int msg)
 				{
 					if(!led_flag)
 					{
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
 					}
 					else 
 					{
-						user_set_pwm_duty(JL_TIMER1, 255);
+						user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
 					user_mode.cabinet_flag = 1;
@@ -930,12 +996,12 @@ int byle_user_app_msg(int msg)
 				{
 					if(!led_flag)
 					{
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
 					}
 					else 
 					{
-						user_set_pwm_duty(JL_TIMER1, 255);
+						user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
 					user_mode.cabinet_flag = 0;
@@ -953,12 +1019,12 @@ int byle_user_app_msg(int msg)
 				{
 					if(!led_flag)
 					{
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
 					}
 					else 
 					{
-						user_set_pwm_duty(JL_TIMER1, 255);
+						user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
 					user_mode.cabinet_flag = 0;
@@ -976,12 +1042,12 @@ int byle_user_app_msg(int msg)
 				{
 					if(!led_flag)
 					{
-						user_set_pwm_duty(JL_TIMER1, duty_cnt);
+						led_color_temp_apply(duty_cnt);
 						sys_hi_timeout_add(NULL, led_set_ledoff,500);					
 					}
 					else 
 					{
-						user_set_pwm_duty(JL_TIMER1, 255);
+						user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 						sys_hi_timeout_add(NULL, led_set_ledon,500);				
 					}
 					user_mode.cabinet_flag = 0;
@@ -1067,7 +1133,6 @@ if (err != OS_NO_ERR) {
 }
 key_init();
 //指示灯IO初始化
-gpio_set_mode(IO_PORT_DM, PORT_OUTPUT_HIGH);
 #ifdef BYLE_KWS_ASR
  byle_kws_app();
 #endif

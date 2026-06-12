@@ -18,7 +18,7 @@
 #define TCFG_HSB_DIV                        HSB_DIV1
 
 /*---------UART Configuration---------------*/
-#define TCFG_DEBUG_ENABLE                   0//调试总开关       //BZ  US320A8_BYLE_KWSA_switch_libS1_WAKEUP  0  ???
+#define TCFG_DEBUG_ENABLE                   1//调试总开关       //BZ  US320A8_BYLE_KWSA_switch_libS1_WAKEUP  0  ???
 #define TCFG_UART_TX_PORT  					IO_PORT_DP//IO_PORTA_14//IO_PORT_DP//IO_PORT_DM//IO_PORT_DP//IO_PORTA_14	//串口打印发送脚配置	//NO_CONFIG_PORT		BZ
 #define TCFG_UART_BAUDRATE  				1000000     //串口波打印特率配置
 

@@ -48,7 +48,7 @@ float const mic_dig_gain = TCFG_MIC_DIG_GAIN;
 const u8 config_have_dac = TCFG_DAC_ENABLE;
 
 const u8 have_tick_timer = 1;
-
+   
 
 /**
  * @brief Bluetooth Controller Log

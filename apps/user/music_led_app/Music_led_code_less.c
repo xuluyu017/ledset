@@ -201,7 +201,7 @@ u8 r_pwmduty=0;
 u8 g_pwmduty=0;      
 u8 w_pwmduty=0; 
 u8 y_pwmduty=0;     
-#define PWM_TIMER_UNIT_US     100//  50// 250  //单位us
+#define PWM_TIMER_UNIT_US     100//  50// 250  //锟斤拷位us
 
 #ifndef   PWM_MAX_DUTY
 #define PWM_MAX_DUTY  64
@@ -345,7 +345,7 @@ static void pwm_timer_isr(void)
 
 request_irq(PWM_IRQ_TIME_IDX, 7, pwm_timer_isr, 0); 
 //SFR(PWM_TIMER->CON, 10, 4, 7); 
-SFR(PWM_TIMER->CON, 10, 4, TIMER_SRC_STD_24M); //时钟源选择std24m
+SFR(PWM_TIMER->CON, 10, 4, TIMER_SRC_STD_24M); //时锟斤拷源选锟斤拷std24m
 
 SFR(PWM_TIMER->CON, 4, 4, TIMER_PRESCALE_1); 
 
@@ -1770,7 +1770,8 @@ gLedContrl.LED_Y_buf=DEFAUFT_MAX_WY;
 
 
 	   }
-	   else
+	   else
+
 	   	{
 		   is_led_RGB=0;
 

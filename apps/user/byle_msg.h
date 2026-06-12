@@ -369,6 +369,11 @@ typedef enum
 	SHOE_CABINET_LED_DOWN,
 	WINE_CABINET_LED_DOWN,
 
+	// ==== 新增的色温控制动作指令 ====
+    SET_COLOR_WHITE_LED,    // 调成白光
+    SET_COLOR_WARM_LED,     // 调成暖光
+    SET_COLOR_NEUTRAL_LED,  // 调成中性光
+    // ===============================
 	KEY_USER_END,
 	KEY_NULL=0x0fff,
 
