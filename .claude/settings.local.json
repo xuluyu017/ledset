@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(sed -i 's/user_set_pwm_duty\\(CW_PWM_TIMER, 255\\);user_set_pwm_duty\\(WW_PWM_TIMER, 255\\);/led_set_ledoff\\(\\);/g' byle_user.c)",
+      "Bash(sed -i 's/user_set_pwm_duty\\(CW_PWM_TIMER, 255\\);\\\\n\\\\t\\\\t\\\\t\\\\tuser_set_pwm_duty\\(WW_PWM_TIMER, 255\\);/led_set_ledoff\\(\\);/g' byle_user.c)"
+    ]
+  }
+}

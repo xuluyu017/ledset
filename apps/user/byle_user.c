@@ -32,10 +32,10 @@
 #include "gpio.h"
 
 // ==== 双路色温 PWM 配置 ====
-// 冷白光 PWM : IO_PORT_DM + JL_TIMER0
-// 暖白光 PWM : IO_PORT_DP + JL_TIMER1
-#define CW_PWM_PORT    IO_PORT_DM
-#define WW_PWM_PORT    IO_PORT_DP
+// 冷白光 PWM : IO_PORT_DP + JL_TIMER0
+// 暖白光 PWM : IO_PORT_DM + JL_TIMER1
+#define CW_PWM_PORT    IO_PORT_DP
+#define WW_PWM_PORT    IO_PORT_DM
 #define CW_PWM_TIMER   JL_TIMER0
 #define WW_PWM_TIMER   JL_TIMER1
 #define PWM_FREQ       10000
@@ -162,6 +162,11 @@ else
 
 void user_io_init(void)
 {
+
+#ifdef LED_PWM_PORT
+    gpio_direction_output(CW_PWM_PORT, 0);
+    gpio_direction_output(WW_PWM_PORT, 0);
+#endif
 
     key_init();
 
