@@ -447,12 +447,136 @@ s16 duty_cnt = 0;
 u16 timer_show_id = 0;
 u8 led_up_down_eage = 0;
 u16 led_delay_timer_id = 0;
+extern u8 led_color_mode;
+
+#define LED_PWM_OFF_DUTY        255
+#define LED_FADE_TIME_MS        2000
+#define LED_FADE_INTERVAL_MS    20
+#define LED_FADE_STEPS          (LED_FADE_TIME_MS / LED_FADE_INTERVAL_MS)
+
+u16 led_fade_timer_id = 0;
+u16 led_fade_step = 0;
+s16 led_fade_start_cw = LED_PWM_OFF_DUTY;
+s16 led_fade_start_ww = LED_PWM_OFF_DUTY;
+s16 led_fade_target_cw = LED_PWM_OFF_DUTY;
+s16 led_fade_target_ww = LED_PWM_OFF_DUTY;
+u8 led_fade_target_on = 0;
+u8 led_current_cw_duty = LED_PWM_OFF_DUTY;
+u8 led_current_ww_duty = LED_PWM_OFF_DUTY;
+
+static u8 led_limit_duty(s16 duty)
+{
+	if (duty < 0) {
+		return 0;
+	}
+	if (duty > LED_PWM_OFF_DUTY) {
+		return LED_PWM_OFF_DUTY;
+	}
+	return (u8)duty;
+}
+
+static void led_pwm_apply(u8 cw_duty, u8 ww_duty)
+{
+	user_set_pwm_duty(CW_PWM_TIMER, cw_duty);
+	user_set_pwm_duty(WW_PWM_TIMER, ww_duty);
+	led_current_cw_duty = cw_duty;
+	led_current_ww_duty = ww_duty;
+}
+
+static void led_color_temp_get_duty(u8 brightness, u8 *cw_duty, u8 *ww_duty)
+{
+	switch (led_color_mode) {
+		case 0:
+			*cw_duty = brightness;
+			*ww_duty = LED_PWM_OFF_DUTY;
+			break;
+		case 1:
+			*cw_duty = LED_PWM_OFF_DUTY;
+			*ww_duty = brightness;
+			break;
+		case 2:
+			*cw_duty = brightness * 2 / 3;
+			*ww_duty = brightness * 1 / 3;
+			break;
+		default:
+			*cw_duty = LED_PWM_OFF_DUTY;
+			*ww_duty = LED_PWM_OFF_DUTY;
+			break;
+	}
+}
+
+static void led_fade_cancel(void)
+{
+	if (led_fade_timer_id) {
+		sys_hi_timer_del(led_fade_timer_id);
+		led_fade_timer_id = 0;
+	}
+}
+
+static void led_fade_process(void *priv)
+{
+	s16 cw_duty;
+	s16 ww_duty;
+
+	(void)priv;
+
+	led_fade_step++;
+	if (led_fade_step >= LED_FADE_STEPS) {
+		led_pwm_apply(led_limit_duty(led_fade_target_cw), led_limit_duty(led_fade_target_ww));
+		led_fade_cancel();
+		led_flag = led_fade_target_on;
+		return;
+	}
+
+	cw_duty = led_fade_start_cw + ((led_fade_target_cw - led_fade_start_cw) * led_fade_step) / LED_FADE_STEPS;
+	ww_duty = led_fade_start_ww + ((led_fade_target_ww - led_fade_start_ww) * led_fade_step) / LED_FADE_STEPS;
+	led_pwm_apply(led_limit_duty(cw_duty), led_limit_duty(ww_duty));
+}
+
+static void led_fade_start(u8 target_on)
+{
+	u8 target_cw = LED_PWM_OFF_DUTY;
+	u8 target_ww = LED_PWM_OFF_DUTY;
+
+	led_fade_cancel();
+
+	if (target_on) {
+		led_color_temp_get_duty(led_limit_duty(duty_cnt), &target_cw, &target_ww);
+	}
+
+	led_fade_start_cw = led_current_cw_duty;
+	led_fade_start_ww = led_current_ww_duty;
+	led_fade_target_cw = target_cw;
+	led_fade_target_ww = target_ww;
+	led_fade_target_on = target_on;
+	led_fade_step = 0;
+	led_flag = target_on;
+
+	if (led_fade_start_cw == led_fade_target_cw && led_fade_start_ww == led_fade_target_ww) {
+		led_pwm_apply(target_cw, target_ww);
+		return;
+	}
+
+	led_fade_timer_id = sys_hi_timer_add(NULL, led_fade_process, LED_FADE_INTERVAL_MS);
+}
+
+static void led_fade_on(void)
+{
+	led_fade_start(1);
+}
+
+static void led_fade_off(void)
+{
+	led_fade_start(0);
+}
 u8 led_color_mode = 0;  // 0=白光, 1=暖光, 2=中性光
 
 // 根据色温模式和亮度，设置双路 PWM
 void led_color_temp_apply(u8 brightness)
 {
     u8 cw_duty, ww_duty;
+
+	led_fade_cancel();
 
     switch (led_color_mode) {
         case 0:  // 白光：仅冷白亮
@@ -471,15 +595,14 @@ void led_color_temp_apply(u8 brightness)
             return;
     }
 
-    user_set_pwm_duty(CW_PWM_TIMER, cw_duty);
-    user_set_pwm_duty(WW_PWM_TIMER, ww_duty);
+    led_pwm_apply(cw_duty, ww_duty);
 }
 
 void led_delay_off(void)
 {
 	log_info("led_delay_off");
-	user_set_pwm_duty(CW_PWM_TIMER, 255);
-	user_set_pwm_duty(WW_PWM_TIMER, 255);
+	led_fade_cancel();
+	led_pwm_apply(LED_PWM_OFF_DUTY, LED_PWM_OFF_DUTY);
 	led_delay_timer_id = 0;
 	led_flag = 0;
 }
@@ -487,8 +610,8 @@ void led_delay_off(void)
 void led_set_ledoff(void)
 {
 	log_info("led_set_ledoff");
-	user_set_pwm_duty(CW_PWM_TIMER, 255);
-	user_set_pwm_duty(WW_PWM_TIMER, 255);
+	led_fade_cancel();
+	led_pwm_apply(LED_PWM_OFF_DUTY, LED_PWM_OFF_DUTY);
 }
 
 void led_set_ledon(void)
@@ -501,8 +624,8 @@ void led_show_twice(void)
 {
 	static u8 cnt = 0;
 	u8 val = 255 * (cnt % 2);
-	user_set_pwm_duty(CW_PWM_TIMER, val);
-	user_set_pwm_duty(WW_PWM_TIMER, val);
+	led_fade_cancel();
+	led_pwm_apply(val, val);
 	if(cnt == 3)
 	{
 		cnt = 0;
@@ -528,16 +651,13 @@ int byle_user_app_msg(int msg)
 				printf("KEY_PWM_CONTROL");
 				if(led_flag)
 				{
-					user_set_pwm_duty(CW_PWM_TIMER, 255);
-					user_set_pwm_duty(WW_PWM_TIMER, 255);
+					led_fade_off();
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
-					led_flag = 0;
 				}
 				else
 				{
-					led_color_temp_apply(duty_cnt);
-					led_flag = 1;
+					led_fade_on();
 				}
 				break;
 			case KEY_PWM_LONG:
@@ -624,46 +744,44 @@ int byle_user_app_msg(int msg)
         // ...
 			case TURNON_LED:
 				printf("TURNON_LED");
-				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)				
-					led_color_temp_apply(duty_cnt);led_flag = 1;			
+				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)
+				{
+					led_fade_on();
+				}
 				break;
 			case CABINET_LED_ON:
 				printf("CABINET_LED_ON");
 				if(user_mode.cabinet_flag)
 				{
-					led_color_temp_apply(duty_cnt);
-					led_flag = 1;
+					led_fade_on();
 				}
 				break;
 			case WARDROBE_LED_ON:
 				printf("WARDROBE_LED_ON");
 				if(user_mode.wardrobe_flag)
 				{
-					led_color_temp_apply(duty_cnt);
-					led_flag = 1;
+					led_fade_on();
 				}
 				break;
 			case SHOE_CABINET_LED_ON:
 				printf("SHOE_CABINET_LED_ON");
 				if(user_mode.shoe_cabinet_flag)
 				{
-					led_color_temp_apply(duty_cnt);
-					led_flag = 1;
+					led_fade_on();
 				}
 				break;
 			case WINE_CABINET_LED_ON:
 				printf("WINE_CABINET_LED_ON");
 				if(user_mode.wine_cabinet_flag)
 				{
-					led_color_temp_apply(duty_cnt);
-					led_flag = 1;
+					led_fade_on();
 				}
 				break;
 			case TURNOFF_LED:
 				printf("TURNOFF_LED");
 				if(!user_mode.cabinet_flag && !user_mode.wardrobe_flag && !user_mode.shoe_cabinet_flag && !user_mode.wine_cabinet_flag)		
 				{		
-					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);led_flag = 0;
+					led_fade_off();
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
 				}
@@ -672,8 +790,7 @@ int byle_user_app_msg(int msg)
 				printf("CABINET_LED_OFF");
 				if(user_mode.cabinet_flag)
 				{
-					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
-					led_flag = 0;
+					led_fade_off();
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
 				}
@@ -682,8 +799,7 @@ int byle_user_app_msg(int msg)
 				printf("WARDROBE_LED_OFF");	
 				if(user_mode.wardrobe_flag)
 				{
-					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
-					led_flag = 0;
+					led_fade_off();
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
 				}
@@ -692,8 +808,7 @@ int byle_user_app_msg(int msg)
 				printf("SHOE_CABINET_LED_OFF");
 				if(user_mode.shoe_cabinet_flag)
 				{
-					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
-					led_flag = 0;
+					led_fade_off();
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
 				}
@@ -702,8 +817,7 @@ int byle_user_app_msg(int msg)
 				printf("WINE_CABINET_LED_OFF");
 				if(user_mode.wine_cabinet_flag)
 				{
-					user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
-					led_flag = 0;
+					led_fade_off();
 					sys_hi_timer_del(led_delay_timer_id);
 					led_delay_timer_id = 0;
 				}
