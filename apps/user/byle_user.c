@@ -65,6 +65,37 @@ int bylelibprintf(const char *format, ...)
 }
 user_global_info_t MyContrl;
 UserMode user_mode = {.cabinet_flag = 0, .wardrobe_flag = 0, .shoe_cabinet_flag = 0, .wine_cabinet_flag = 0, .led_mode_set = 0};
+extern s16 duty_cnt;
+extern u8 led_color_mode;
+
+typedef struct user_mode_info_old
+{
+	u8 cabinet_flag;
+	u8 wardrobe_flag;
+	u8 shoe_cabinet_flag;
+	u8 wine_cabinet_flag;
+	u8 led_mode_set;
+} UserModeOld;
+
+static void led_mode_restore(void)
+{
+	if (user_mode.led_color_mode > 2) {
+		user_mode.led_color_mode = 0;
+	}
+	if (user_mode.led_brightness < 0 || user_mode.led_brightness > 242) {
+		user_mode.led_brightness = 0;
+	}
+
+	led_color_mode = user_mode.led_color_mode;
+	duty_cnt = user_mode.led_brightness;
+}
+
+static void led_mode_save(void)
+{
+	user_mode.led_color_mode = led_color_mode;
+	user_mode.led_brightness = duty_cnt;
+	vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
+}
 
  /*----------------------------------------------------------------------------*/
  /**@brief	保存信息到fm_buf
@@ -113,14 +144,28 @@ UserMode user_mode = {.cabinet_flag = 0, .wardrobe_flag = 0, .shoe_cabinet_flag 
 	 	}
 
 //我的LED模式数据从VM中读取出来
-	ret = vm_read(VM_LED_MODE_INFO, &user_mode, sizeof(UserMode));
+ 	ret = vm_read(VM_LED_MODE_INFO, &user_mode, sizeof(UserMode));
 	if(ret != sizeof(UserMode))
 	{
-		log_info("user_mode is null\n");
+		UserModeOld old_user_mode;
+
+		log_info("user_mode is old or null\n");
 		memset(&user_mode, 0x00, sizeof(UserMode));
+		ret = vm_read(VM_LED_MODE_INFO, &old_user_mode, sizeof(UserModeOld));
+		if(ret == sizeof(UserModeOld))
+		{
+			user_mode.cabinet_flag = old_user_mode.cabinet_flag;
+			user_mode.wardrobe_flag = old_user_mode.wardrobe_flag;
+			user_mode.shoe_cabinet_flag = old_user_mode.shoe_cabinet_flag;
+			user_mode.wine_cabinet_flag = old_user_mode.wine_cabinet_flag;
+			user_mode.led_mode_set = old_user_mode.led_mode_set;
+		}
+		user_mode.led_color_mode = 0;
+		user_mode.led_brightness = 0;
 	}
+	led_mode_restore();
  
- }
+  }
 
 
 #ifdef ENABLE_GET_MIC_ENERGY
@@ -703,6 +748,7 @@ int byle_user_app_msg(int msg)
 				printf("KEY_PRESS_UP");
 				led_max_flag = !led_max_flag;
 				led_up_down_eage = 0;
+				led_mode_save();
 					// if(duty_cnt == 255)
 					// 	led_max_flag = 1;
 					// else if(duty_cnt == 0)
@@ -725,6 +771,7 @@ int byle_user_app_msg(int msg)
             led_flag = 1;
             led_color_mode = 0;
             led_color_temp_apply(duty_cnt);
+            led_mode_save();
             break;
 
         case SET_COLOR_WARM_LED:
@@ -732,6 +779,7 @@ int byle_user_app_msg(int msg)
             led_flag = 1;
             led_color_mode = 1;
             led_color_temp_apply(duty_cnt);
+            led_mode_save();
             break;
 
         case SET_COLOR_NEUTRAL_LED:
@@ -739,6 +787,7 @@ int byle_user_app_msg(int msg)
             led_flag = 1;
             led_color_mode = 2;
             led_color_temp_apply(duty_cnt);
+            led_mode_save();
             break;
 
         // ...
@@ -833,12 +882,14 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -853,11 +904,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -872,11 +925,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -891,11 +946,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -910,11 +967,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt <= 0)
 						{
 							duty_cnt = 0;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -929,11 +988,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -948,11 +1009,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -967,11 +1030,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -986,11 +1051,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -1005,11 +1072,13 @@ int byle_user_app_msg(int msg)
 						if(duty_cnt >= 242)
 						{
 							duty_cnt = 242;
+							led_mode_save();
 							user_set_pwm_duty(CW_PWM_TIMER, 255);user_set_pwm_duty(WW_PWM_TIMER, 255);
 							sys_hi_timeout_add(NULL,led_set_ledon, 500);
 							break;
 						}
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				}
 				break;
@@ -1019,6 +1088,7 @@ int byle_user_app_msg(int msg)
 					{
 						duty_cnt = 242;
 						led_color_temp_apply(duty_cnt);
+						led_mode_save();
 					}
 				break;
 			case DELAY_MODE_LED:
@@ -1036,6 +1106,7 @@ int byle_user_app_msg(int msg)
 					{
 						duty_cnt = 0;
 						led_color_temp_apply(duty_cnt);					
+						led_mode_save();
 					}
 				break;
 			case LOW_POWER_MODE_LED:
@@ -1044,6 +1115,7 @@ int byle_user_app_msg(int msg)
 					{
 						duty_cnt = 153;
 						led_color_temp_apply(duty_cnt);					
+						led_mode_save();
 					}
 				break;
 			case SET_LIGHT_LED:
@@ -1083,7 +1155,7 @@ int byle_user_app_msg(int msg)
 					user_mode.wine_cabinet_flag = 0;
 					user_mode.led_mode_set = 0;
 					
-					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
+					led_mode_save();
 				}
 				break;
 			case SET_CABINET_LED:
@@ -1106,7 +1178,7 @@ int byle_user_app_msg(int msg)
 					user_mode.wine_cabinet_flag = 0;
 					user_mode.led_mode_set = 0;
 
-					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
+					led_mode_save();
 				}
 				break;
 			case SET_WARDROBE_LED:
@@ -1129,7 +1201,7 @@ int byle_user_app_msg(int msg)
 					user_mode.wine_cabinet_flag = 0;
 					user_mode.led_mode_set = 0;
 
-					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
+					led_mode_save();
 				}
 				break;
 			case SET_SHOE_CABINET_LED:
@@ -1152,7 +1224,7 @@ int byle_user_app_msg(int msg)
 					user_mode.wine_cabinet_flag = 0;
 					user_mode.led_mode_set = 0;
 
-					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
+					led_mode_save();
 				}
 				break;
 			case SET_WINE_CABINET_LED:
@@ -1175,7 +1247,7 @@ int byle_user_app_msg(int msg)
 					user_mode.wine_cabinet_flag = 1;
 					user_mode.led_mode_set = 0;
 
-					vm_write(VM_LED_MODE_INFO, (u8*)&user_mode, sizeof(UserMode));
+					led_mode_save();
 				}
 				break;
 			default:

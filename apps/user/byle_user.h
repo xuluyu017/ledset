@@ -43,6 +43,8 @@ typedef struct user_mode_info
 	u8 shoe_cabinet_flag;
 	u8 wine_cabinet_flag;
 	u8 led_mode_set;
+	u8 led_color_mode;
+	s16 led_brightness;
 
 }UserMode;
 
